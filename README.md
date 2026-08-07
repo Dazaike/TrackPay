@@ -23,31 +23,41 @@ Material 3 Android app. Local-first pay timer + savings goals + insights. Inspir
 
 ## Status
 
-**Plan locked. Phase briefs + execution runbook ready. App code not started.**
+**Phase 1 timer spine complete.** Jobs, clock in/out/pause, live Dashboard `$`, FGS notification recompute, domain unit tests.
 
 | | |
 |---|---|
-| Version | `0.4.0-plan` |
-| Package (planned) | `com.trackpay.app` |
-| Stack (planned) | Kotlin · Compose · Material 3 · Room · Hilt |
-| Min SDK (planned) | 26 (live-status polish on 33+) |
+| Version | `0.2.0` |
+| Package | `com.trackpay.app` |
+| Stack | Kotlin · Compose · Material 3 · Room · Hilt · DataStore |
+| Min SDK | 26 (live-status polish on 33+) |
 
 **Master plan:** [`PLAN.md`](./PLAN.md)  
 **Runbook:** [`EXECUTION.md`](./EXECUTION.md) — order, contracts, smoke gate  
 **Execute via:** [`phases/`](./phases/README.md) — one brief per agent
 
+## Build
+
+Requires JDK 17+ and Android SDK 35 (`ANDROID_HOME` / `local.properties` `sdk.dir`).
+
+```bash
+./gradlew :app:assembleDebug
+```
+
+Or open the repo root in Android Studio (Ladybug+) and run the `app` configuration.
+
 ## Repo
 
 ```
 TrackPay/
+  app/              Android application module
+  gradle/           version catalog + wrapper
   PLAN.md           product + architecture lock
   EXECUTION.md      build order + contracts + smoke gate
   phases/           subagent work orders (00–06)
   README.md         you are here
   VERSION           semver pointer
 ```
-
-When code lands it’ll be a normal Android Gradle tree. Until then: plan hard, ship once.
 
 ## Privacy posture
 

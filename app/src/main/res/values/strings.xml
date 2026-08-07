@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TrackPay</string>
+
+    <string name="notif_channel_session_name">Live session</string>
+    <string name="notif_channel_session_desc">Ongoing timer and live earnings while clocked in</string>
+    <string name="notif_session_title_idle">TrackPay</string>
+    <string name="notif_session_idle_body">Session ending…</string>
+    <string name="notif_status_running">Running</string>
+    <string name="notif_status_paused">Paused</string>
+
+    <string name="action_pause">Pause</string>
+    <string name="action_resume">Resume</string>
+    <string name="action_clock_out">Clock out</string>
+    <string name="action_clock_in">Clock in</string>
+
+    <string name="dashboard_today">Today</string>
+    <string name="dashboard_week">This week</string>
+    <string name="dashboard_no_jobs_title">Add a job to start</string>
+    <string name="dashboard_no_jobs_body">Create a job with an hourly rate, then clock in.</string>
+    <string name="dashboard_create_job">Create job</string>
+    <string name="dashboard_jobs">Jobs</string>
+    <string name="dashboard_select_job">Job</string>
+    <string name="dashboard_since">since %1$s</string>
+    <string name="dashboard_rate_since">%1$s · since %2$s</string>
+
+    <string name="jobs_title">Jobs</string>
+    <string name="jobs_add">Add job</string>
+    <string name="jobs_edit">Edit job</string>
+    <string name="jobs_name">Name</string>
+    <string name="jobs_hourly_rate">Hourly rate</string>
+    <string name="jobs_ot_rate">OT rate (optional)</string>
+    <string name="jobs_ot_threshold">OT after hours (default 8)</string>
+    <string name="jobs_save">Save</string>
+    <string name="jobs_archive">Archive</string>
+    <string name="jobs_color">Color</string>
+    <string name="jobs_icon">Icon</string>
+    <string name="jobs_empty">No jobs yet</string>
+
+    <string name="settings_jobs_link">Manage jobs</string>
+    <string name="settings_phase_stub">Phase 1 · timer spine</string>
+
+    <string name="fgs_special_use_description">Tracks an active paid work session and shows live elapsed time and earnings in a persistent notification while the user is clocked in.</string>
+</resources>
