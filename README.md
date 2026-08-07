@@ -23,16 +23,17 @@ Material 3 Android app. Local-first pay timer + savings goals + insights. Inspir
 
 ## Status
 
-**Plan locked. Phase briefs written for subagents. App code not started.**
+**Plan locked. Phase briefs + execution runbook ready. App code not started.**
 
 | | |
 |---|---|
-| Version | `0.3.0-plan` |
+| Version | `0.4.0-plan` |
 | Package (planned) | `com.trackpay.app` |
 | Stack (planned) | Kotlin · Compose · Material 3 · Room · Hilt |
 | Min SDK (planned) | 26 (live-status polish on 33+) |
 
 **Master plan:** [`PLAN.md`](./PLAN.md)  
+**Runbook:** [`EXECUTION.md`](./EXECUTION.md) — order, contracts, smoke gate  
 **Execute via:** [`phases/`](./phases/README.md) — one brief per agent
 
 ## Repo
@@ -40,6 +41,7 @@ Material 3 Android app. Local-first pay timer + savings goals + insights. Inspir
 ```
 TrackPay/
   PLAN.md           product + architecture lock
+  EXECUTION.md      build order + contracts + smoke gate
   phases/           subagent work orders (00–06)
   README.md         you are here
   VERSION           semver pointer

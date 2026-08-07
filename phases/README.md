@@ -2,6 +2,8 @@
 
 Each file is a **standalone work order**. A subagent should need only that file + repo root defaults — not the full `PLAN.md` novel.
 
+**Runbook (order, contracts, smoke):** [`../EXECUTION.md`](../EXECUTION.md)
+
 | Order | File | Name | Depends on |
 |------:|------|------|------------|
 | 0 | [`00-scaffold.md`](./00-scaffold.md) | Scaffold | — |

@@ -1,10 +1,11 @@
 # TrackPay — Build Plan
 
-**Status:** plan locked · phase briefs ready for subagents · no app code yet  
-**Version:** 0.3.0-plan  
+**Status:** plan locked · phase briefs + execution runbook ready · no app code yet  
+**Version:** 0.4.0-plan  
 **Source reference:** [Clocked In: Budget & Savings](https://apps.apple.com/us/app/clocked-in-budget-savings/id6772886245)  
 **Target:** Material 3 Android · Kotlin · Jetpack Compose  
 **Repo:** `/home/daz/Scratchpad/TrackPay`
+**Execution runbook:** [`EXECUTION.md`](./EXECUTION.md)
 
 ---
 
@@ -202,7 +203,7 @@ Notification actions call the same use cases as the UI.
 
 ## Phases
 
-**Subagent work orders (source of truth for execution):** [`phases/`](./phases/README.md)
+**Subagent work orders:** [`phases/`](./phases/README.md) · **run order/contracts/smoke:** [`EXECUTION.md`](./EXECUTION.md)
 
 | Phase | Brief | Ship version |
 |-----:|-------|--------------|
@@ -304,3 +305,4 @@ Ship when: unlimited jobs, live timer + FGS notification that ticks `$` closed, 
 - **0.1.0-plan** — initial clone plan with Pro/IAP, widgets, Wear deferred
 - **0.2.0-plan** — all former Pro features free; strip billing; drop widgets; drop Wear; keep Android 13+ live status
 - **0.3.0-plan** — split each phase into standalone subagent briefs under `phases/`
+- **0.4.0-plan** — add `EXECUTION.md` runbook (critical path, contracts, smoke gate, agent rules)
