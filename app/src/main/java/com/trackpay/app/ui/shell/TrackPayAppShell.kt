@@ -29,6 +29,7 @@ import com.trackpay.app.ui.jobs.JobsListRoute
 import com.trackpay.app.ui.session.SessionDetailRoute
 import com.trackpay.app.ui.session.SessionEditorRoute
 import com.trackpay.app.ui.settings.SettingsScreen
+import com.trackpay.app.ui.themes.ThemesRoute
 
 private object Routes {
     const val JOBS = "jobs"
@@ -45,6 +46,7 @@ private object Routes {
     const val GOAL_EDIT_ARG = "goalId"
     const val GOAL_EDIT_TEMPLATE_ARG = "template"
     const val GOAL_EDIT_ROUTE = "goalEdit/{goalId}?template={template}"
+    const val THEMES = "themes"
 }
 
 @Composable
@@ -133,6 +135,12 @@ fun TrackPayAppShell() {
             composable(TopLevelDestination.Settings.route) {
                 SettingsScreen(
                     onOpenJobs = { navController.navigate(Routes.JOBS) },
+                    onOpenThemes = { navController.navigate(Routes.THEMES) },
+                )
+            }
+            composable(Routes.THEMES) {
+                ThemesRoute(
+                    onBack = { navController.popBackStack() },
                 )
             }
             composable(Routes.JOBS) {

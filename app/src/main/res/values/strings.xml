@@ -41,7 +41,8 @@
     <string name="jobs_empty">No jobs yet</string>
 
     <string name="settings_jobs_link">Manage jobs</string>
-    <string name="settings_phase_stub">Phase 4 · insights</string>
+    <string name="settings_themes_link">Themes</string>
+    <string name="settings_phase_stub">Phase 5 · themes</string>
 
     <string name="goals_title">Goals</string>
     <string name="goals_loading">Loading…</string>
@@ -165,4 +166,18 @@
     <string name="insights_achievements_title">Achievements</string>
     <string name="insights_achievement_unlocked">Unlocked</string>
     <string name="insights_achievement_locked">Locked</string>
+
+    <string name="themes_title">Themes</string>
+    <string name="themes_back">Back</string>
+    <string name="themes_loading">Loading…</string>
+    <string name="themes_wallet_label">Cosmetic wallet</string>
+    <string name="themes_disclaimer">Earn hours to unlock cosmetic themes. Doesn’t affect real money or goals.</string>
+    <string name="themes_active_chip">Active</string>
+    <string name="themes_status_active">Currently applied</string>
+    <string name="themes_tap_to_apply">Tap to apply</string>
+    <string name="themes_free">Free</string>
+    <string name="themes_unlock_at">Unlock at %1$s lifetime earned</string>
+    <string name="themes_locked_cd">Locked</string>
+    <string name="themes_locked_need_more">Earn %1$s more to unlock %2$s</string>
+    <string name="themes_apply_failed">Couldn’t apply theme</string>
 </resources>

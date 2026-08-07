@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Work
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -26,6 +27,7 @@ import com.trackpay.app.R
 @Composable
 fun SettingsScreen(
     onOpenJobs: () -> Unit,
+    onOpenThemes: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -60,6 +62,22 @@ fun SettingsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable(onClick = onOpenJobs),
+            )
+            HorizontalDivider()
+            ListItem(
+                headlineContent = { Text(stringResource(R.string.settings_themes_link)) },
+                leadingContent = {
+                    Icon(Icons.Default.Palette, contentDescription = null)
+                },
+                trailingContent = {
+                    Icon(
+                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = null,
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onOpenThemes),
             )
             HorizontalDivider()
         }
