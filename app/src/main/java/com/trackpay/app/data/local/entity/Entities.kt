@@ -109,3 +109,9 @@ data class GoalAllocationEntity(
     val amountMinor: Long,
     val createdAt: Long,
 )
+
+@Entity(tableName = "achievement_unlocks")
+data class AchievementUnlockEntity(
+    @PrimaryKey val id: String,
+    val unlockedAt: Long,
+)

@@ -22,6 +22,7 @@
     <string name="dashboard_jobs">Jobs</string>
     <string name="dashboard_goal_peek_label">Top goal</string>
     <string name="dashboard_goal_peek_progress">%1$s of %2$s</string>
+    <string name="dashboard_streak_chip">🔥 %1$d day streak</string>
     <string name="dashboard_select_job">Job</string>
     <string name="dashboard_since">since %1$s</string>
     <string name="dashboard_rate_since">%1$s · since %2$s</string>
@@ -40,7 +41,7 @@
     <string name="jobs_empty">No jobs yet</string>
 
     <string name="settings_jobs_link">Manage jobs</string>
-    <string name="settings_phase_stub">Phase 3 · goals</string>
+    <string name="settings_phase_stub">Phase 4 · insights</string>
 
     <string name="goals_title">Goals</string>
     <string name="goals_loading">Loading…</string>
@@ -141,4 +142,27 @@
     <string name="session_break_start">Break start</string>
     <string name="session_break_end">Break end</string>
     <string name="fgs_special_use_description">Tracks an active paid work session and shows live elapsed time and earnings in a persistent notification while the user is clocked in.</string>
+
+    <string name="insights_title">Insights</string>
+    <string name="insights_loading">Loading…</string>
+    <string name="insights_empty_title">No insights yet</string>
+    <string name="insights_empty_body">Clock a shift to unlock insights.</string>
+    <string name="insights_challenge_title">Weekly challenge</string>
+    <string name="insights_challenge_progress">%1$s / %2$s</string>
+    <string name="insights_challenge_meta">%1$d%% · %2$d days left</string>
+    <string name="insights_range_7d">7D</string>
+    <string name="insights_range_30d">30D</string>
+    <string name="insights_range_90d">90D</string>
+    <string name="insights_range_1y">1Y</string>
+    <string name="insights_metric_earnings">Earnings</string>
+    <string name="insights_metric_hours">Hours</string>
+    <string name="insights_range_total">Range total</string>
+    <string name="insights_chart_empty">No activity in this range</string>
+    <string name="insights_weekday_title">Average by weekday</string>
+    <string name="insights_streak_title">Streak</string>
+    <string name="insights_streak_current">Current: %1$d days</string>
+    <string name="insights_streak_best">Best: %1$d days</string>
+    <string name="insights_achievements_title">Achievements</string>
+    <string name="insights_achievement_unlocked">Unlocked</string>
+    <string name="insights_achievement_locked">Locked</string>
 </resources>

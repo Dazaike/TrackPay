@@ -5,6 +5,8 @@ import com.trackpay.app.data.local.entity.GoalAllocationEntity
 import com.trackpay.app.data.local.entity.GoalEntity
 import com.trackpay.app.data.local.entity.JobEntity
 import com.trackpay.app.data.local.entity.WorkSessionEntity
+import com.trackpay.app.data.local.entity.AchievementUnlockEntity
+
 import com.trackpay.app.domain.model.BreakInterval
 import com.trackpay.app.domain.model.Goal
 import com.trackpay.app.domain.model.GoalAllocation
@@ -13,6 +15,8 @@ import com.trackpay.app.domain.model.Job
 import com.trackpay.app.domain.model.SessionSource
 import com.trackpay.app.domain.model.SessionStatus
 import com.trackpay.app.domain.model.WorkSession
+import com.trackpay.app.domain.model.AchievementUnlock
+
 
 fun JobEntity.toDomain(): Job =
     Job(
@@ -128,4 +132,16 @@ fun GoalAllocation.toEntity(): GoalAllocationEntity =
         sessionId = sessionId,
         amountMinor = amountMinor,
         createdAt = createdAt,
+    )
+
+fun AchievementUnlockEntity.toDomain(): AchievementUnlock =
+    AchievementUnlock(
+        id = id,
+        unlockedAt = unlockedAt,
+    )
+
+fun AchievementUnlock.toEntity(): AchievementUnlockEntity =
+    AchievementUnlockEntity(
+        id = id,
+        unlockedAt = unlockedAt,
     )

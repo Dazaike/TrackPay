@@ -23,11 +23,11 @@ Material 3 Android app. Local-first pay timer + savings goals + insights. Inspir
 
 ## Status
 
-**Phase 3 goals complete.** Savings goals with % allocation on clock-out and session edit/delete, templates, pace-to-deadline, Goals tab, dashboard peek.
+**Phase 4 insights complete.** Weekly challenge, range charts, weekday averages, streaks, achievements, dashboard streak chip.
 
 | | |
 |---|---|
-| Version | `0.4.0` |
+| Version | `0.5.0` |
 | Package | `com.trackpay.app` |
 | Stack | Kotlin · Compose · Material 3 · Room · Hilt · DataStore |
 | Min SDK | 26 (live-status polish on 33+) |

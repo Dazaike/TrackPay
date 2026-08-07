@@ -23,7 +23,7 @@ import com.trackpay.app.ui.dashboard.DashboardRoute
 import com.trackpay.app.ui.goals.GoalEditorRoute
 import com.trackpay.app.ui.goals.GoalsRoute
 import com.trackpay.app.ui.history.HistoryRoute
-import com.trackpay.app.ui.insights.InsightsPlaceholder
+import com.trackpay.app.ui.insights.InsightsRoute
 import com.trackpay.app.ui.jobs.JobEditorRoute
 import com.trackpay.app.ui.jobs.JobsListRoute
 import com.trackpay.app.ui.session.SessionDetailRoute
@@ -115,7 +115,7 @@ fun TrackPayAppShell() {
                 )
             }
             composable(TopLevelDestination.Insights.route) {
-                InsightsPlaceholder()
+                InsightsRoute()
             }
             composable(TopLevelDestination.Goals.route) {
                 GoalsRoute(

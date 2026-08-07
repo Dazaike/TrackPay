@@ -6,6 +6,8 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.trackpay.app.data.local.entity.BreakIntervalEntity
+import com.trackpay.app.data.local.entity.AchievementUnlockEntity
+
 import com.trackpay.app.data.local.entity.GoalAllocationEntity
 import com.trackpay.app.data.local.entity.GoalEntity
 import com.trackpay.app.data.local.entity.JobEntity
@@ -132,6 +134,21 @@ interface BreakIntervalDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(breaks: List<BreakIntervalEntity>)
+
+    @Query(
+        """
+        SELECT * FROM break_intervals
+        WHERE sessionId IN (:sessionIds)
+        ORDER BY startAt ASC
+        """,
+    )
+    suspend fun listForSessions(sessionIds: List<String>): List<BreakIntervalEntity>
+
+    @Query("SELECT * FROM break_intervals ORDER BY startAt ASC")
+    fun observeAll(): Flow<List<BreakIntervalEntity>>
+
+    @Query("SELECT * FROM break_intervals ORDER BY startAt ASC")
+    suspend fun listAll(): List<BreakIntervalEntity>
 }
 
 @Dao
@@ -217,9 +234,30 @@ interface GoalAllocationDao {
     @Query("SELECT * FROM goal_allocations")
     fun observeAll(): Flow<List<GoalAllocationEntity>>
 
+    @Query("SELECT * FROM goal_allocations")
+    suspend fun listAll(): List<GoalAllocationEntity>
+
     @Query("SELECT COALESCE(SUM(amountMinor), 0) FROM goal_allocations WHERE goalId = :goalId")
     suspend fun sumForGoal(goalId: String): Long
 
     @Query("SELECT COALESCE(SUM(amountMinor), 0) FROM goal_allocations WHERE goalId = :goalId")
     fun observeSumForGoal(goalId: String): Flow<Long>
+}
+
+@Dao
+interface AchievementUnlockDao {
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertIgnore(unlock: AchievementUnlockEntity): Long
+
+    @Query("SELECT * FROM achievement_unlocks ORDER BY unlockedAt ASC")
+    fun observeAll(): Flow<List<AchievementUnlockEntity>>
+
+    @Query("SELECT * FROM achievement_unlocks ORDER BY unlockedAt ASC")
+    suspend fun listAll(): List<AchievementUnlockEntity>
+
+    @Query("SELECT * FROM achievement_unlocks WHERE id = :id LIMIT 1")
+    suspend fun getById(id: String): AchievementUnlockEntity?
+
+    @Query("SELECT id FROM achievement_unlocks")
+    suspend fun listIds(): List<String>
 }

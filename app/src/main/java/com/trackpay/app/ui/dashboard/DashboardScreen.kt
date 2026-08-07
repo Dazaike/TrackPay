@@ -242,7 +242,11 @@ private fun IdlePane(
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
-        PeriodChips(today = state.todayEarnedMinor, week = state.weekEarnedMinor)
+        PeriodChips(
+            today = state.todayEarnedMinor,
+            week = state.weekEarnedMinor,
+            streakDays = state.streakCurrentDays,
+        )
 
         state.topGoal?.let { goal ->
             DashboardGoalPeek(
@@ -385,7 +389,7 @@ private fun ActiveSessionPane(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        PeriodChips(today = state.todayEarnedMinor, week = state.weekEarnedMinor)
+        PeriodChips(today = state.todayEarnedMinor, week = state.weekEarnedMinor, streakDays = state.streakCurrentDays)
 
         Spacer(Modifier.height(8.dp))
 
@@ -479,7 +483,7 @@ private fun ActiveSessionPane(
 }
 
 @Composable
-private fun PeriodChips(today: Long, week: Long) {
+private fun PeriodChips(today: Long, week: Long, streakDays: Int) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -496,6 +500,14 @@ private fun PeriodChips(today: Long, week: Long) {
                 Text("${stringResource(R.string.dashboard_week)} ${MoneyFormat.format(week)}")
             },
         )
+        if (streakDays >= 1) {
+            AssistChip(
+                onClick = {},
+                label = {
+                    Text(stringResource(R.string.dashboard_streak_chip, streakDays))
+                },
+            )
+        }
     }
 }
 

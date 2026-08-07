@@ -35,3 +35,27 @@ class AllocationSessionMutationHooks @Inject constructor(
         removeSessionAllocations(sessionId)
     }
 }
+
+/**
+ * Runs allocation then achievement evaluation on session writes.
+ */
+@Singleton
+class CompositeSessionMutationHooks @Inject constructor(
+    private val allocation: AllocationSessionMutationHooks,
+    private val achievements: AchievementSessionHooks,
+) : SessionMutationHooks {
+    override suspend fun onSessionCompleted(sessionId: String) {
+        allocation.onSessionCompleted(sessionId)
+        achievements.onSessionCompleted(sessionId)
+    }
+
+    override suspend fun onSessionMutated(sessionId: String) {
+        allocation.onSessionMutated(sessionId)
+        achievements.onSessionMutated(sessionId)
+    }
+
+    override suspend fun onSessionDeleted(sessionId: String) {
+        allocation.onSessionDeleted(sessionId)
+        achievements.onSessionDeleted(sessionId)
+    }
+}

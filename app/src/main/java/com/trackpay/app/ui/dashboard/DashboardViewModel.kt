@@ -15,6 +15,7 @@ import com.trackpay.app.domain.usecase.ClockInUseCase
 import com.trackpay.app.domain.usecase.ClockOutUseCase
 import com.trackpay.app.domain.usecase.ListJobsUseCase
 import com.trackpay.app.domain.usecase.ObserveGoalProgressUseCase
+import com.trackpay.app.domain.usecase.ObserveStreakUseCase
 import com.trackpay.app.domain.usecase.PauseSessionUseCase
 import com.trackpay.app.domain.usecase.ResumeSessionUseCase
 import com.trackpay.app.ui.util.TimeFormat
@@ -43,6 +44,7 @@ data class DashboardUiState(
     val todayEarnedMinor: Long = 0L,
     val weekEarnedMinor: Long = 0L,
     val topGoal: GoalProgress? = null,
+    val streakCurrentDays: Int = 0,
     val errorMessage: String? = null,
 ) {
     val isRunning: Boolean get() = active?.session?.status == SessionStatus.RUNNING
@@ -56,6 +58,7 @@ data class DashboardUiState(
 class DashboardViewModel @Inject constructor(
     listJobs: ListJobsUseCase,
     observeGoalProgress: ObserveGoalProgressUseCase,
+    observeStreak: ObserveStreakUseCase,
     private val sessionRepository: SessionRepository,
     private val preferences: PreferencesDataSource,
     private val clockIn: ClockInUseCase,
@@ -81,6 +84,7 @@ class DashboardViewModel @Inject constructor(
         val lastJobId: String?,
         val overrideId: String?,
         val topGoal: GoalProgress?,
+        val streakCurrentDays: Int,
         val errorMessage: String?,
     )
 
@@ -99,12 +103,17 @@ class DashboardViewModel @Inject constructor(
                 lastJobId = lastJobId,
                 overrideId = overrideId,
                 topGoal = null,
+                streakCurrentDays = 0,
                 errorMessage = err,
             )
         },
         observeGoalProgress(),
-    ) { base, goals ->
-        base.copy(topGoal = goals.firstOrNull())
+        observeStreak(),
+    ) { base, goals, streak ->
+        base.copy(
+            topGoal = goals.firstOrNull(),
+            streakCurrentDays = streak.currentDays,
+        )
     }.flatMapLatest { base ->
         val tickSource = if (base.active != null) {
             nowFlow
@@ -135,6 +144,7 @@ class DashboardViewModel @Inject constructor(
                 todayEarnedMinor = period.first,
                 weekEarnedMinor = period.second,
                 topGoal = base.topGoal,
+                streakCurrentDays = base.streakCurrentDays,
                 errorMessage = base.errorMessage,
             )
         }
