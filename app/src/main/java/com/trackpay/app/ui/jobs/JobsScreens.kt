@@ -18,8 +18,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -34,6 +36,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -204,6 +207,10 @@ fun JobEditorRoute(
         onOtThresholdChange = viewModel::onOtThresholdChange,
         onColorChange = viewModel::onColorChange,
         onIconChange = viewModel::onIconChange,
+        onGeoEnabledChange = viewModel::onGeoEnabledChange,
+        onLatitudeChange = viewModel::onLatitudeChange,
+        onLongitudeChange = viewModel::onLongitudeChange,
+        onRadiusChange = viewModel::onRadiusChange,
         onSave = viewModel::save,
     )
 }
@@ -219,6 +226,10 @@ fun JobEditorScreen(
     onOtThresholdChange: (String) -> Unit,
     onColorChange: (Int) -> Unit,
     onIconChange: (String) -> Unit,
+    onGeoEnabledChange: (Boolean) -> Unit,
+    onLatitudeChange: (String) -> Unit,
+    onLongitudeChange: (String) -> Unit,
+    onRadiusChange: (String) -> Unit,
     onSave: () -> Unit,
 ) {
     Scaffold(
@@ -250,6 +261,7 @@ fun JobEditorScreen(
             Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
@@ -337,6 +349,56 @@ fun JobEditorScreen(
                         label = { Text(label) },
                     )
                 }
+            }
+            Text(
+                text = stringResource(R.string.jobs_location_section),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            Text(
+                text = stringResource(R.string.jobs_location_help),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = stringResource(R.string.jobs_geo_enabled),
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+                Switch(
+                    checked = state.geoEnabled,
+                    onCheckedChange = onGeoEnabledChange,
+                )
+            }
+            if (state.geoEnabled) {
+                OutlinedTextField(
+                    value = state.latitudeText,
+                    onValueChange = onLatitudeChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.jobs_latitude)) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                )
+                OutlinedTextField(
+                    value = state.longitudeText,
+                    onValueChange = onLongitudeChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.jobs_longitude)) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                )
+                OutlinedTextField(
+                    value = state.radiusText,
+                    onValueChange = onRadiusChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.jobs_radius_meters)) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                )
             }
             if (state.errorMessage != null) {
                 Spacer(Modifier.height(4.dp))

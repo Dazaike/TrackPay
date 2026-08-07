@@ -2,6 +2,7 @@ package com.trackpay.app
 
 import android.app.Application
 import com.trackpay.app.data.repo.SessionRepository
+import com.trackpay.app.location.GeofenceManager
 import com.trackpay.app.service.TimerServiceController
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
@@ -15,6 +16,7 @@ class TrackPayApp : Application() {
 
     @Inject lateinit var sessionRepository: SessionRepository
     @Inject lateinit var timerServiceController: TimerServiceController
+    @Inject lateinit var geofenceManager: GeofenceManager
 
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
@@ -25,6 +27,7 @@ class TrackPayApp : Application() {
             if (active != null) {
                 timerServiceController.start()
             }
+            runCatching { geofenceManager.refresh() }
         }
     }
 }

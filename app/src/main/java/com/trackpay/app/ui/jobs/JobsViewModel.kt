@@ -8,6 +8,7 @@ import com.trackpay.app.domain.usecase.ArchiveJobUseCase
 import com.trackpay.app.domain.usecase.GetJobUseCase
 import com.trackpay.app.domain.usecase.ListJobsUseCase
 import com.trackpay.app.domain.usecase.UpsertJobUseCase
+import com.trackpay.app.location.GeofenceManager
 import com.trackpay.app.ui.util.MoneyFormat
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,6 +32,10 @@ data class JobEditorUiState(
     val otThresholdHoursText: String = "8",
     val colorArgb: Int = JobDefaults.DEFAULT_COLOR_ARGB,
     val iconKey: String = JobDefaults.DEFAULT_ICON_KEY,
+    val geoEnabled: Boolean = false,
+    val latitudeText: String = "",
+    val longitudeText: String = "",
+    val radiusText: String = JobDefaults.DEFAULT_RADIUS_METERS.toString(),
     val isNew: Boolean = true,
     val errorMessage: String? = null,
     val saved: Boolean = false,
@@ -43,19 +48,22 @@ class JobsListViewModel @Inject constructor(
 ) : ViewModel() {
     private val error = MutableStateFlow<String?>(null)
 
-    val uiState: StateFlow<JobsListUiState> = combine(listJobs(), error) { jobs, err ->
+    val uiState: StateFlow<JobsListUiState> = combine(
+        listJobs(),
+        error,
+    ) { jobs, err ->
         JobsListUiState(jobs = jobs, errorMessage = err)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), JobsListUiState())
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = JobsListUiState(),
+    )
 
     fun archive(jobId: String) {
         viewModelScope.launch {
             runCatching { archiveJob(jobId) }
-                .onFailure { error.value = it.message }
+                .onFailure { error.value = it.message ?: "Archive failed" }
         }
-    }
-
-    fun dismissError() {
-        error.value = null
     }
 }
 
@@ -63,6 +71,7 @@ class JobsListViewModel @Inject constructor(
 class JobEditorViewModel @Inject constructor(
     private val upsertJob: UpsertJobUseCase,
     private val getJob: GetJobUseCase,
+    private val geofenceManager: GeofenceManager,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(JobEditorUiState())
     val uiState: StateFlow<JobEditorUiState> = _uiState
@@ -87,6 +96,10 @@ class JobEditorViewModel @Inject constructor(
                         ?: "8",
                     colorArgb = job.colorArgb,
                     iconKey = job.iconKey,
+                    geoEnabled = job.geoEnabled,
+                    latitudeText = job.latitude?.toString().orEmpty(),
+                    longitudeText = job.longitude?.toString().orEmpty(),
+                    radiusText = (job.radiusMeters ?: JobDefaults.DEFAULT_RADIUS_METERS).toString(),
                     isNew = false,
                 )
             }
@@ -117,6 +130,22 @@ class JobEditorViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(iconKey = iconKey, errorMessage = null)
     }
 
+    fun onGeoEnabledChange(enabled: Boolean) {
+        _uiState.value = _uiState.value.copy(geoEnabled = enabled, errorMessage = null)
+    }
+
+    fun onLatitudeChange(value: String) {
+        _uiState.value = _uiState.value.copy(latitudeText = value, errorMessage = null)
+    }
+
+    fun onLongitudeChange(value: String) {
+        _uiState.value = _uiState.value.copy(longitudeText = value, errorMessage = null)
+    }
+
+    fun onRadiusChange(value: String) {
+        _uiState.value = _uiState.value.copy(radiusText = value, errorMessage = null)
+    }
+
     fun save() {
         val s = _uiState.value
         val hourly = MoneyFormat.parseMajorToMinor(s.hourlyRateText)
@@ -136,6 +165,27 @@ class JobEditorViewModel @Inject constructor(
             val hours = s.otThresholdHoursText.trim().toDoubleOrNull() ?: 8.0
             (hours * 60.0).toInt().coerceAtLeast(1)
         }
+
+        val latitude = s.latitudeText.trim().toDoubleOrNull()
+        val longitude = s.longitudeText.trim().toDoubleOrNull()
+        val radius = s.radiusText.trim().toIntOrNull()
+            ?: JobDefaults.DEFAULT_RADIUS_METERS
+
+        if (s.geoEnabled) {
+            if (latitude == null || longitude == null) {
+                _uiState.value = s.copy(errorMessage = "Enter latitude and longitude for location")
+                return
+            }
+            if (latitude !in -90.0..90.0 || longitude !in -180.0..180.0) {
+                _uiState.value = s.copy(errorMessage = "Latitude/longitude out of range")
+                return
+            }
+            if (radius <= 0) {
+                _uiState.value = s.copy(errorMessage = "Radius must be a positive number of meters")
+                return
+            }
+        }
+
         viewModelScope.launch {
             runCatching {
                 upsertJob(
@@ -146,7 +196,13 @@ class JobEditorViewModel @Inject constructor(
                     otThresholdMinutes = thresholdMinutes,
                     colorArgb = s.colorArgb,
                     iconKey = s.iconKey,
+                    geoEnabled = s.geoEnabled,
+                    latitude = if (s.geoEnabled) latitude else null,
+                    longitude = if (s.geoEnabled) longitude else null,
+                    radiusMeters = if (s.geoEnabled) radius else null,
+                    clearGeo = !s.geoEnabled,
                 )
+                geofenceManager.refresh()
             }.onSuccess {
                 _uiState.value = _uiState.value.copy(saved = true, errorMessage = null)
             }.onFailure {

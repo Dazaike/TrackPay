@@ -16,6 +16,10 @@ data class JobEntity(
     val iconKey: String,
     val archived: Boolean,
     val createdAt: Long,
+    val geoEnabled: Boolean = false,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+    val radiusMeters: Int? = null,
 )
 
 @Entity(

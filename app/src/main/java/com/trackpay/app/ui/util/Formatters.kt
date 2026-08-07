@@ -1,5 +1,6 @@
 package com.trackpay.app.ui.util
 
+import com.trackpay.app.domain.model.JobDefaults
 import java.text.NumberFormat
 import java.time.Instant
 import java.time.ZoneId
@@ -9,30 +10,82 @@ import java.util.Locale
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 
-object MoneyFormat {
-    private val currency: Currency = Currency.getInstance(Locale.US)
+/**
+ * ISO 4217 helpers for settings lists and [MoneyFormat].
+ */
+object CurrencyFormat {
+    val COMMON_CODES: List<String> = listOf(
+        "USD", "EUR", "GBP", "CAD", "AUD", "NZD", "JPY", "CHF",
+        "SEK", "NOK", "DKK", "PLN", "CZK", "HUF", "RON", "BGN",
+        "TRY", "BRL", "MXN", "ARS", "CLP", "COP", "PEN",
+        "INR", "PKR", "BDT", "LKR", "NPR",
+        "CNY", "HKD", "TWD", "KRW", "SGD", "MYR", "THB", "IDR", "PHP", "VND",
+        "AED", "SAR", "ILS", "ZAR", "NGN", "KES", "GHS", "EGP",
+    )
 
-    fun format(minor: Long, locale: Locale = Locale.getDefault()): String {
-        val major = minor / 100.0
+    fun resolve(code: String?): Currency {
+        val normalized = code?.trim()?.uppercase().orEmpty()
+        if (normalized.isEmpty()) {
+            return Currency.getInstance(JobDefaults.DEFAULT_CURRENCY_CODE)
+        }
+        return runCatching { Currency.getInstance(normalized) }
+            .getOrElse { Currency.getInstance(JobDefaults.DEFAULT_CURRENCY_CODE) }
+    }
+
+    fun symbol(code: String?, locale: Locale = Locale.getDefault()): String =
+        resolve(code).getSymbol(locale)
+
+    fun displayName(code: String?, locale: Locale = Locale.getDefault()): String {
+        val currency = resolve(code)
+        return "${currency.currencyCode} (${currency.getSymbol(locale)})"
+    }
+}
+
+object MoneyFormat {
+    fun format(
+        minor: Long,
+        locale: Locale = Locale.getDefault(),
+        currencyCode: String = JobDefaults.DEFAULT_CURRENCY_CODE,
+    ): String {
+        val currency = CurrencyFormat.resolve(currencyCode)
+        val fractionDigits = currency.defaultFractionDigits.coerceAtLeast(0)
+        val divisor = Math.pow(10.0, fractionDigits.toDouble())
+        val major = if (fractionDigits == 0) minor.toDouble() else minor / divisor
         val nf = NumberFormat.getCurrencyInstance(locale).apply {
-            currency = MoneyFormat.currency
-            maximumFractionDigits = 2
-            minimumFractionDigits = 2
+            this.currency = currency
+            maximumFractionDigits = fractionDigits
+            minimumFractionDigits = fractionDigits
         }
         return nf.format(major)
     }
 
-    fun formatRate(hourlyMinor: Long, locale: Locale = Locale.getDefault()): String =
-        "${format(hourlyMinor, locale)}/hr"
+    fun formatRate(
+        hourlyMinor: Long,
+        locale: Locale = Locale.getDefault(),
+        currencyCode: String = JobDefaults.DEFAULT_CURRENCY_CODE,
+    ): String = "${format(hourlyMinor, locale, currencyCode)}/hr"
 
-    fun parseMajorToMinor(input: String): Long? {
-        val cleaned = input.trim().replace(",", "").removePrefix("$")
+    fun parseMajorToMinor(
+        input: String,
+        currencyCode: String = JobDefaults.DEFAULT_CURRENCY_CODE,
+    ): Long? {
+        val currency = CurrencyFormat.resolve(currencyCode)
+        val fractionDigits = currency.defaultFractionDigits.coerceAtLeast(0)
+        val symbol = currency.getSymbol(Locale.getDefault())
+        val cleaned = input.trim()
+            .replace(",", "")
+            .removePrefix(symbol)
+            .removePrefix(currency.currencyCode)
+            .removePrefix("$")
+            .trim()
         if (cleaned.isEmpty()) return null
         val value = cleaned.toDoubleOrNull() ?: return null
         if (value < 0) return null
-        return Math.round(value * 100.0)
+        val multiplier = Math.pow(10.0, fractionDigits.toDouble())
+        return Math.round(value * multiplier)
     }
 }
+
 
 object TimeFormat {
     private val timeFormatter: DateTimeFormatter =

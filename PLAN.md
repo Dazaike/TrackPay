@@ -1,7 +1,7 @@
 # TrackPay — Build Plan
 
-**Status:** plan locked · phase briefs + execution runbook ready · no app code yet  
-**Version:** 0.4.0-plan  
+**Status:** v1 implemented · phases 0–6 complete · tag suggestion `v1.0.0`  
+**Version:** 1.0.0  
 **Source reference:** [Clocked In: Budget & Savings](https://apps.apple.com/us/app/clocked-in-budget-savings/id6772886245)  
 **Target:** Material 3 Android · Kotlin · Jetpack Compose  
 **Repo:** `/home/daz/Scratchpad/TrackPay`
@@ -297,6 +297,8 @@ Settings IA, geofence, onboarding, a11y, notif polish, Live Updates if SDK allow
 ## v1 “done” line
 
 Ship when: unlimited jobs, live timer + FGS notification that ticks `$` closed, full history + filters + session edit/create, goals with allocate, insights (all ranges), themes wallet, settings, optional geofence, onboarding. No billing. No widgets. No Wear.
+
+**Implemented:** v1.0.0 ships the done line above (settings IA, onboarding, optional geofence suggest-via-notification, a11y polish). No billing, widgets, or Wear.
 
 ---
 

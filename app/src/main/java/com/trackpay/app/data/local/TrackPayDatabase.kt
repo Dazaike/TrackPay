@@ -24,7 +24,7 @@ import com.trackpay.app.data.local.entity.WorkSessionEntity
         GoalAllocationEntity::class,
         AchievementUnlockEntity::class,
     ],
-    version = 4,
+    version = 5,
     exportSchema = false,
 )
 abstract class TrackPayDatabase : RoomDatabase() {

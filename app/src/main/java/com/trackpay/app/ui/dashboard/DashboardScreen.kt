@@ -55,6 +55,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -280,11 +282,13 @@ private fun IdlePane(
 
         Spacer(Modifier.height(12.dp))
 
+        val clockInCd = stringResource(R.string.a11y_clock_in)
         Button(
             onClick = onClockIn,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
+                .height(56.dp)
+                .semantics { contentDescription = clockInCd },
             enabled = state.selectedJob != null,
         ) {
             Text(
@@ -444,11 +448,15 @@ private fun ActiveSessionPane(
 
         Spacer(Modifier.height(24.dp))
 
+        val clockOutCd = stringResource(R.string.a11y_clock_out)
+        val pauseCd = stringResource(R.string.a11y_pause)
+        val resumeCd = stringResource(R.string.a11y_resume)
         Button(
             onClick = onClockOut,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
+                .height(56.dp)
+                .semantics { contentDescription = clockOutCd },
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.error,
                 contentColor = MaterialTheme.colorScheme.onError,
@@ -465,7 +473,8 @@ private fun ActiveSessionPane(
                 onClick = onResume,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp),
+                    .height(52.dp)
+                    .semantics { contentDescription = resumeCd },
             ) {
                 Text(stringResource(R.string.action_resume))
             }
@@ -474,7 +483,8 @@ private fun ActiveSessionPane(
                 onClick = onPause,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp),
+                    .height(52.dp)
+                    .semantics { contentDescription = pauseCd },
             ) {
                 Text(stringResource(R.string.action_pause))
             }

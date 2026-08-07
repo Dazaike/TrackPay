@@ -9,6 +9,13 @@
     <string name="notif_status_running">Running</string>
     <string name="notif_status_paused">Paused</string>
 
+    <string name="notif_channel_geofence_name">Location suggestions</string>
+    <string name="notif_channel_geofence_desc">Optional clock-in and clock-out reminders when you arrive or leave a job site. Not payroll truth.</string>
+    <string name="geofence_enter_title">You\'re here — %1$s</string>
+    <string name="geofence_enter_body">Clock in? Location is a best-effort reminder, not automatic payroll.</string>
+    <string name="geofence_exit_title">Leaving %1$s?</string>
+    <string name="geofence_exit_body">Clock out? Confirm if you\'re done at this job.</string>
+
     <string name="action_pause">Pause</string>
     <string name="action_resume">Resume</string>
     <string name="action_clock_out">Clock out</string>
@@ -39,10 +46,76 @@
     <string name="jobs_color">Color</string>
     <string name="jobs_icon">Icon</string>
     <string name="jobs_empty">No jobs yet</string>
+    <string name="jobs_location_section">Work location</string>
+    <string name="jobs_location_help">Optional geofence for arrival/leave suggestions. Not payroll truth — just a nudge when you show up.</string>
+    <string name="jobs_geo_enabled">Suggest clock near this place</string>
+    <string name="jobs_latitude">Latitude</string>
+    <string name="jobs_longitude">Longitude</string>
+    <string name="jobs_radius_meters">Radius (meters)</string>
 
+    <string name="settings_title">Settings</string>
+    <string name="settings_section_work">Work</string>
+    <string name="settings_section_preferences">Preferences</string>
+    <string name="settings_section_notifications">Notifications</string>
+    <string name="settings_section_location">Location</string>
+    <string name="settings_section_support">Support</string>
     <string name="settings_jobs_link">Manage jobs</string>
+    <string name="settings_jobs_none">No jobs yet — add one to clock in</string>
+    <string name="settings_jobs_count">%1$d jobs</string>
+    <string name="settings_jobs_summary">%1$d jobs · default %2$s</string>
+    <string name="settings_ot_help">Overtime defaults to after 8 hours per calendar day per job. Set OT rate on each job to enable.</string>
+    <string name="settings_currency">Currency</string>
     <string name="settings_themes_link">Themes</string>
-    <string name="settings_phase_stub">Phase 5 · themes</string>
+    <string name="settings_themes_summary">Cosmetic packs unlocked by lifetime tracked earnings</string>
+    <string name="settings_live_notification">Live session notification</string>
+    <string name="settings_live_notification_summary">Show ongoing timer and earnings while clocked in</string>
+    <string name="settings_system_notifications">System notification settings</string>
+    <string name="settings_system_notifications_summary">Open Android notification controls for TrackPay</string>
+    <string name="settings_geo_master">Location clock suggestions</string>
+    <string name="settings_geo_master_summary">Notify when you arrive or leave a job site</string>
+    <string name="settings_geo_disclaimer">Geofence is a best-effort reminder, not payroll truth. The app works fully with location off. Enable per job under Manage jobs.</string>
+    <string name="settings_geo_per_job">Per-job work locations</string>
+    <string name="settings_geo_per_job_summary">Set lat/lng/radius on each job</string>
+    <string name="settings_feedback">Send feedback</string>
+    <string name="settings_feedback_summary">mailto: feedback@trackpay.app</string>
+    <string name="settings_privacy">Privacy</string>
+    <string name="settings_about">About</string>
+    <string name="settings_about_summary">Version %1$s</string>
+
+    <string name="privacy_title">Privacy</string>
+    <string name="privacy_body">TrackPay is local-first. Your jobs, rates, shifts, goals, and themes stay on this device. There is no account and no cloud sync in v1.</string>
+    <string name="privacy_location">Location is optional. When enabled, it is used only for on-device geofence suggestions (arrive/leave). It is not sold, and it is not payroll truth.</string>
+    <string name="privacy_notifications">Notifications show live session status while you are clocked in. You can deny notification permission and still use the app.</string>
+
+    <string name="about_title">About</string>
+    <string name="about_version">Version %1$s (%2$d)</string>
+    <string name="about_body">Your shift, priced by the second. Clock in, watch earnings tick, fund goals, and unlock cosmetic themes by working — not by paying.</string>
+    <string name="about_free">Every feature is free. No Pro tier. No widgets module. No Wear companion in v1.</string>
+
+    <string name="onboarding_title">Welcome</string>
+    <string name="onboarding_welcome_title">Your hours, live</string>
+    <string name="onboarding_welcome_body">TrackPay turns a shift into a live ticker. Clock in, watch dollars climb, and park a cut into goals — all on device.</string>
+    <string name="onboarding_get_started">Get started</string>
+    <string name="onboarding_job_title">Create your first job</string>
+    <string name="onboarding_job_body">Name it and set the hourly rate. You can add more jobs later in Settings.</string>
+    <string name="onboarding_goal_title">Optional first goal</string>
+    <string name="onboarding_goal_body">Pick a template if you want a savings target. Skip if you just want the timer.</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_permissions_title">Permissions</string>
+    <string name="onboarding_permissions_body">Notifications keep the live session status visible. Location powers optional arrival/leave suggestions. Both are optional — Not now is fine.</string>
+    <string name="onboarding_permissions_location_note">Geofence suggestions are not payroll. Deny anytime in system settings.</string>
+    <string name="onboarding_allow_permissions">Allow notifications &amp; location</string>
+    <string name="onboarding_not_now">Not now</string>
+    <string name="onboarding_finish">Go to dashboard</string>
+    <string name="onboarding_saving">Saving…</string>
+
+    <string name="action_back">Back</string>
+    <string name="action_continue">Continue</string>
+    <string name="a11y_clock_in">Clock in</string>
+    <string name="a11y_clock_out">Clock out</string>
+    <string name="a11y_pause">Pause session</string>
+    <string name="a11y_resume">Resume session</string>
+    <string name="a11y_money_amount">Earnings %1$s</string>
 
     <string name="goals_title">Goals</string>
     <string name="goals_loading">Loading…</string>

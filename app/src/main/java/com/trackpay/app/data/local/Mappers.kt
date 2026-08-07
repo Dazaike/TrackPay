@@ -29,6 +29,10 @@ fun JobEntity.toDomain(): Job =
         iconKey = iconKey,
         archived = archived,
         createdAt = createdAt,
+        geoEnabled = geoEnabled,
+        latitude = latitude,
+        longitude = longitude,
+        radiusMeters = radiusMeters,
     )
 
 fun Job.toEntity(): JobEntity =
@@ -42,6 +46,10 @@ fun Job.toEntity(): JobEntity =
         iconKey = iconKey,
         archived = archived,
         createdAt = createdAt,
+        geoEnabled = geoEnabled,
+        latitude = latitude,
+        longitude = longitude,
+        radiusMeters = radiusMeters,
     )
 
 fun WorkSessionEntity.toDomain(): WorkSession =

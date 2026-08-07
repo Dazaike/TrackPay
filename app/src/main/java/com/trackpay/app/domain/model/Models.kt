@@ -24,6 +24,10 @@ data class Job(
     val iconKey: String,
     val archived: Boolean,
     val createdAt: Long,
+    val geoEnabled: Boolean = false,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+    val radiusMeters: Int? = null,
 )
 
 data class WorkSession(
@@ -100,7 +104,8 @@ object JobDefaults {
     const val DEFAULT_OT_THRESHOLD_MINUTES: Int = 480
     const val DEFAULT_COLOR_ARGB: Int = 0xFF10B981.toInt()
     const val DEFAULT_ICON_KEY: String = "work"
-
+    const val DEFAULT_RADIUS_METERS: Int = 150
+    const val DEFAULT_CURRENCY_CODE: String = "USD"
     val COLOR_PRESETS: IntArray = intArrayOf(
         DEFAULT_COLOR_ARGB,       // emerald
         0xFF3B82F6.toInt(),       // blue
