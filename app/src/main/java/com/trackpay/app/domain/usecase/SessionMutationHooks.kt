@@ -4,8 +4,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Phase 3 seam for goal allocations / wallet refresh after session writes.
- * Default no-op; Phase 3 binds a real implementation.
+ * Seam for goal allocations / wallet refresh after session writes.
  */
 interface SessionMutationHooks {
     suspend fun onSessionCompleted(sessionId: String) {}
@@ -15,3 +14,24 @@ interface SessionMutationHooks {
 
 @Singleton
 class NoOpSessionMutationHooks @Inject constructor() : SessionMutationHooks
+
+/**
+ * Phase 3: recompute goal allocations on complete/edit; clear on delete.
+ */
+@Singleton
+class AllocationSessionMutationHooks @Inject constructor(
+    private val allocateSession: AllocateSessionUseCase,
+    private val removeSessionAllocations: RemoveSessionAllocationsUseCase,
+) : SessionMutationHooks {
+    override suspend fun onSessionCompleted(sessionId: String) {
+        allocateSession(sessionId)
+    }
+
+    override suspend fun onSessionMutated(sessionId: String) {
+        allocateSession(sessionId)
+    }
+
+    override suspend fun onSessionDeleted(sessionId: String) {
+        removeSessionAllocations(sessionId)
+    }
+}

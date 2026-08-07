@@ -6,6 +6,7 @@ import com.trackpay.app.data.local.PreferencesDataSource
 import com.trackpay.app.data.repo.SessionRepository
 import com.trackpay.app.domain.calc.EarningsCalculator
 import com.trackpay.app.domain.model.ActiveSession
+import com.trackpay.app.domain.model.GoalProgress
 import com.trackpay.app.domain.model.Job
 import com.trackpay.app.domain.model.SessionStatus
 import com.trackpay.app.domain.model.WorkSession
@@ -13,6 +14,7 @@ import com.trackpay.app.domain.time.Clock
 import com.trackpay.app.domain.usecase.ClockInUseCase
 import com.trackpay.app.domain.usecase.ClockOutUseCase
 import com.trackpay.app.domain.usecase.ListJobsUseCase
+import com.trackpay.app.domain.usecase.ObserveGoalProgressUseCase
 import com.trackpay.app.domain.usecase.PauseSessionUseCase
 import com.trackpay.app.domain.usecase.ResumeSessionUseCase
 import com.trackpay.app.ui.util.TimeFormat
@@ -40,6 +42,7 @@ data class DashboardUiState(
     val activeMillis: Long = 0L,
     val todayEarnedMinor: Long = 0L,
     val weekEarnedMinor: Long = 0L,
+    val topGoal: GoalProgress? = null,
     val errorMessage: String? = null,
 ) {
     val isRunning: Boolean get() = active?.session?.status == SessionStatus.RUNNING
@@ -52,6 +55,7 @@ data class DashboardUiState(
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     listJobs: ListJobsUseCase,
+    observeGoalProgress: ObserveGoalProgressUseCase,
     private val sessionRepository: SessionRepository,
     private val preferences: PreferencesDataSource,
     private val clockIn: ClockInUseCase,
@@ -76,18 +80,31 @@ class DashboardViewModel @Inject constructor(
         val active: ActiveSession?,
         val lastJobId: String?,
         val overrideId: String?,
+        val topGoal: GoalProgress?,
         val errorMessage: String?,
     )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val uiState: StateFlow<DashboardUiState> = combine(
-        listJobs(),
-        sessionRepository.observeActiveSession(),
-        preferences.lastJobId,
-        selectedJobOverride,
-        error,
-    ) { jobs, active, lastJobId, overrideId, err ->
-        BaseSnapshot(jobs, active, lastJobId, overrideId, err)
+        combine(
+            listJobs(),
+            sessionRepository.observeActiveSession(),
+            preferences.lastJobId,
+            selectedJobOverride,
+            error,
+        ) { jobs, active, lastJobId, overrideId, err ->
+            BaseSnapshot(
+                jobs = jobs,
+                active = active,
+                lastJobId = lastJobId,
+                overrideId = overrideId,
+                topGoal = null,
+                errorMessage = err,
+            )
+        },
+        observeGoalProgress(),
+    ) { base, goals ->
+        base.copy(topGoal = goals.firstOrNull())
     }.flatMapLatest { base ->
         val tickSource = if (base.active != null) {
             nowFlow
@@ -117,6 +134,7 @@ class DashboardViewModel @Inject constructor(
                 activeMillis = breakdown?.activeMillis ?: 0L,
                 todayEarnedMinor = period.first,
                 weekEarnedMinor = period.second,
+                topGoal = base.topGoal,
                 errorMessage = base.errorMessage,
             )
         }

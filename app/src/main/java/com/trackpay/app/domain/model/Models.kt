@@ -119,3 +119,101 @@ object JobDefaults {
         "construction",
     )
 }
+
+enum class GoalStatus {
+    ACTIVE,
+    COMPLETED,
+    ARCHIVED,
+}
+
+data class Goal(
+    val id: String,
+    val name: String,
+    val targetMinor: Long,
+    val deadlineEpochDay: Long,
+    val iconKey: String,
+    val colorArgb: Int,
+    val allocationBps: Int,
+    val status: GoalStatus,
+    val createdAt: Long,
+    val sortOrder: Int?,
+)
+
+data class GoalAllocation(
+    val id: String,
+    val goalId: String,
+    val sessionId: String,
+    val amountMinor: Long,
+    val createdAt: Long,
+)
+
+data class GoalProgress(
+    val goal: Goal,
+    val savedMinor: Long,
+    val remainingMinor: Long,
+    val progress: Float,
+    val pacePerWeekMinor: Long,
+    val overdue: Boolean,
+)
+
+data class GoalTemplate(
+    val name: String,
+    val iconKey: String,
+    val defaultTargetMinor: Long,
+    val defaultHorizonMonths: Int,
+    val colorArgb: Int = GoalDefaults.DEFAULT_COLOR_ARGB,
+)
+
+object GoalDefaults {
+    const val BPS_DENOMINATOR: Int = 10_000
+    const val DEFAULT_COLOR_ARGB: Int = 0xFF10B981.toInt()
+    const val DEFAULT_ICON_KEY: String = "savings"
+    const val DEFAULT_ALLOCATION_BPS: Int = 0
+
+    val COLOR_PRESETS: IntArray = intArrayOf(
+        DEFAULT_COLOR_ARGB,
+        0xFF3B82F6.toInt(),
+        0xFFF59E0B.toInt(),
+        0xFFEF4444.toInt(),
+        0xFF8B5CF6.toInt(),
+        0xFFEC4899.toInt(),
+    )
+
+    val TEMPLATES: List<GoalTemplate> = listOf(
+        GoalTemplate(
+            name = "Emergency Fund",
+            iconKey = "shield",
+            defaultTargetMinor = 300_000L,
+            defaultHorizonMonths = 6,
+            colorArgb = 0xFF10B981.toInt(),
+        ),
+        GoalTemplate(
+            name = "Vacation",
+            iconKey = "flight",
+            defaultTargetMinor = 250_000L,
+            defaultHorizonMonths = 4,
+            colorArgb = 0xFF3B82F6.toInt(),
+        ),
+        GoalTemplate(
+            name = "New Car",
+            iconKey = "directions_car",
+            defaultTargetMinor = 600_000L,
+            defaultHorizonMonths = 12,
+            colorArgb = 0xFFF59E0B.toInt(),
+        ),
+        GoalTemplate(
+            name = "Home Fund",
+            iconKey = "home",
+            defaultTargetMinor = 5_000_000L,
+            defaultHorizonMonths = 48,
+            colorArgb = 0xFF8B5CF6.toInt(),
+        ),
+        GoalTemplate(
+            name = "New Laptop",
+            iconKey = "laptop",
+            defaultTargetMinor = 200_000L,
+            defaultHorizonMonths = 4,
+            colorArgb = 0xFFEC4899.toInt(),
+        ),
+    )
+}

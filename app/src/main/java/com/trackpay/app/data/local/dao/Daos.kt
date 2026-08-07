@@ -6,6 +6,8 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.trackpay.app.data.local.entity.BreakIntervalEntity
+import com.trackpay.app.data.local.entity.GoalAllocationEntity
+import com.trackpay.app.data.local.entity.GoalEntity
 import com.trackpay.app.data.local.entity.JobEntity
 import com.trackpay.app.data.local.entity.WorkSessionEntity
 import kotlinx.coroutines.flow.Flow
@@ -130,4 +132,94 @@ interface BreakIntervalDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(breaks: List<BreakIntervalEntity>)
+}
+
+@Dao
+interface GoalDao {
+    @Query(
+        """
+        SELECT * FROM goals
+        WHERE status = 'ACTIVE'
+        ORDER BY CASE WHEN sortOrder IS NULL THEN 1 ELSE 0 END, sortOrder ASC, createdAt ASC
+        """,
+    )
+    fun observeActive(): Flow<List<GoalEntity>>
+
+    @Query(
+        """
+        SELECT * FROM goals
+        WHERE status = 'ACTIVE'
+        ORDER BY CASE WHEN sortOrder IS NULL THEN 1 ELSE 0 END, sortOrder ASC, createdAt ASC
+        """,
+    )
+    suspend fun listActive(): List<GoalEntity>
+
+    @Query(
+        """
+        SELECT * FROM goals
+        ORDER BY CASE WHEN sortOrder IS NULL THEN 1 ELSE 0 END, sortOrder ASC, createdAt ASC
+        """,
+    )
+    fun observeAll(): Flow<List<GoalEntity>>
+
+    @Query(
+        """
+        SELECT * FROM goals
+        ORDER BY CASE WHEN sortOrder IS NULL THEN 1 ELSE 0 END, sortOrder ASC, createdAt ASC
+        """,
+    )
+    suspend fun listAll(): List<GoalEntity>
+
+    @Query("SELECT * FROM goals WHERE id = :id LIMIT 1")
+    suspend fun getById(id: String): GoalEntity?
+
+    @Query("SELECT * FROM goals WHERE id = :id LIMIT 1")
+    fun observeById(id: String): Flow<GoalEntity?>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(goal: GoalEntity)
+
+    @Query("UPDATE goals SET status = 'ARCHIVED' WHERE id = :id")
+    suspend fun archive(id: String)
+
+    @Query("UPDATE goals SET status = 'COMPLETED' WHERE id = :id")
+    suspend fun markCompleted(id: String)
+
+    @Query(
+        """
+        SELECT COALESCE(SUM(allocationBps), 0) FROM goals
+        WHERE status = 'ACTIVE' AND (:excludeId IS NULL OR id != :excludeId)
+        """,
+    )
+    suspend fun sumActiveBpsExcluding(excludeId: String?): Int
+}
+
+@Dao
+interface GoalAllocationDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(allocation: GoalAllocationEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(allocations: List<GoalAllocationEntity>)
+
+    @Query("DELETE FROM goal_allocations WHERE sessionId = :sessionId")
+    suspend fun deleteForSession(sessionId: String)
+
+    @Query("DELETE FROM goal_allocations WHERE goalId = :goalId")
+    suspend fun deleteForGoal(goalId: String)
+
+    @Query("SELECT * FROM goal_allocations WHERE sessionId = :sessionId")
+    suspend fun listForSession(sessionId: String): List<GoalAllocationEntity>
+
+    @Query("SELECT * FROM goal_allocations WHERE goalId = :goalId ORDER BY createdAt ASC")
+    suspend fun listForGoal(goalId: String): List<GoalAllocationEntity>
+
+    @Query("SELECT * FROM goal_allocations")
+    fun observeAll(): Flow<List<GoalAllocationEntity>>
+
+    @Query("SELECT COALESCE(SUM(amountMinor), 0) FROM goal_allocations WHERE goalId = :goalId")
+    suspend fun sumForGoal(goalId: String): Long
+
+    @Query("SELECT COALESCE(SUM(amountMinor), 0) FROM goal_allocations WHERE goalId = :goalId")
+    fun observeSumForGoal(goalId: String): Flow<Long>
 }

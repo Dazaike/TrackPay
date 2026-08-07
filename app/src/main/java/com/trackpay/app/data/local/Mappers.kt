@@ -1,9 +1,14 @@
 package com.trackpay.app.data.local
 
 import com.trackpay.app.data.local.entity.BreakIntervalEntity
+import com.trackpay.app.data.local.entity.GoalAllocationEntity
+import com.trackpay.app.data.local.entity.GoalEntity
 import com.trackpay.app.data.local.entity.JobEntity
 import com.trackpay.app.data.local.entity.WorkSessionEntity
 import com.trackpay.app.domain.model.BreakInterval
+import com.trackpay.app.domain.model.Goal
+import com.trackpay.app.domain.model.GoalAllocation
+import com.trackpay.app.domain.model.GoalStatus
 import com.trackpay.app.domain.model.Job
 import com.trackpay.app.domain.model.SessionSource
 import com.trackpay.app.domain.model.SessionStatus
@@ -77,4 +82,50 @@ fun BreakInterval.toEntity(): BreakIntervalEntity =
         sessionId = sessionId,
         startAt = startAt,
         endAt = endAt,
+    )
+
+fun GoalEntity.toDomain(): Goal =
+    Goal(
+        id = id,
+        name = name,
+        targetMinor = targetMinor,
+        deadlineEpochDay = deadlineEpochDay,
+        iconKey = iconKey,
+        colorArgb = colorArgb,
+        allocationBps = allocationBps,
+        status = runCatching { GoalStatus.valueOf(status) }.getOrDefault(GoalStatus.ACTIVE),
+        createdAt = createdAt,
+        sortOrder = sortOrder,
+    )
+
+fun Goal.toEntity(): GoalEntity =
+    GoalEntity(
+        id = id,
+        name = name,
+        targetMinor = targetMinor,
+        deadlineEpochDay = deadlineEpochDay,
+        iconKey = iconKey,
+        colorArgb = colorArgb,
+        allocationBps = allocationBps,
+        status = status.name,
+        createdAt = createdAt,
+        sortOrder = sortOrder,
+    )
+
+fun GoalAllocationEntity.toDomain(): GoalAllocation =
+    GoalAllocation(
+        id = id,
+        goalId = goalId,
+        sessionId = sessionId,
+        amountMinor = amountMinor,
+        createdAt = createdAt,
+    )
+
+fun GoalAllocation.toEntity(): GoalAllocationEntity =
+    GoalAllocationEntity(
+        id = id,
+        goalId = goalId,
+        sessionId = sessionId,
+        amountMinor = amountMinor,
+        createdAt = createdAt,
     )

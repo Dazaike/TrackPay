@@ -5,6 +5,7 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
@@ -25,12 +27,15 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -48,6 +53,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -55,20 +61,24 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.trackpay.app.R
+import com.trackpay.app.domain.model.GoalProgress
 import com.trackpay.app.domain.model.Job
 import com.trackpay.app.ui.components.MoneyText
 import com.trackpay.app.ui.util.MoneyFormat
 import com.trackpay.app.ui.util.TimeFormat
+import kotlin.math.roundToInt
 
 @Composable
 fun DashboardRoute(
     onOpenJobs: () -> Unit,
+    onOpenGoal: (String) -> Unit = {},
     viewModel: DashboardViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     DashboardScreen(
         state = state,
         onOpenJobs = onOpenJobs,
+        onOpenGoal = onOpenGoal,
         onSelectJob = viewModel::selectJob,
         onClockIn = viewModel::onClockIn,
         onPause = viewModel::onPause,
@@ -83,6 +93,7 @@ fun DashboardRoute(
 fun DashboardScreen(
     state: DashboardUiState,
     onOpenJobs: () -> Unit,
+    onOpenGoal: (String) -> Unit = {},
     onSelectJob: (String) -> Unit,
     onClockIn: () -> Unit,
     onPause: () -> Unit,
@@ -176,6 +187,7 @@ fun DashboardScreen(
                     onSelectJob = onSelectJob,
                     onClockIn = onClockIn,
                     onOpenJobs = onOpenJobs,
+                    onOpenGoal = onOpenGoal,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding),
@@ -221,6 +233,7 @@ private fun IdlePane(
     onSelectJob: (String) -> Unit,
     onClockIn: () -> Unit,
     onOpenJobs: () -> Unit,
+    onOpenGoal: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -230,6 +243,13 @@ private fun IdlePane(
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
         PeriodChips(today = state.todayEarnedMinor, week = state.weekEarnedMinor)
+
+        state.topGoal?.let { goal ->
+            DashboardGoalPeek(
+                progress = goal,
+                onClick = { onOpenGoal(goal.goal.id) },
+            )
+        }
 
         if (state.jobs.size > 1) {
             JobSelector(
@@ -271,6 +291,74 @@ private fun IdlePane(
 
         TextButton(onClick = onOpenJobs) {
             Text(stringResource(R.string.dashboard_jobs))
+        }
+    }
+}
+
+@Composable
+private fun DashboardGoalPeek(
+    progress: GoalProgress,
+    onClick: () -> Unit,
+) {
+    val goal = progress.goal
+    val color = Color(goal.colorArgb)
+    val percent = (progress.progress * 100f).roundToInt().coerceIn(0, 100)
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        ),
+        shape = RoundedCornerShape(12.dp),
+    ) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = stringResource(R.string.dashboard_goal_peek_label),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    text = "$percent%",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = color,
+                )
+            }
+            Text(
+                text = goal.name,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+            )
+            LinearProgressIndicator(
+                progress = { progress.progress.coerceIn(0f, 1f) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+                    .clip(RoundedCornerShape(4.dp)),
+                color = color,
+                trackColor = color.copy(alpha = 0.15f),
+                strokeCap = StrokeCap.Round,
+            )
+            Text(
+                text = stringResource(
+                    R.string.dashboard_goal_peek_progress,
+                    MoneyFormat.format(progress.savedMinor),
+                    MoneyFormat.format(goal.targetMinor),
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.trackpay.app.ui.shell
 
+import android.net.Uri
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -17,8 +18,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.trackpay.app.domain.model.GoalDefaults
 import com.trackpay.app.ui.dashboard.DashboardRoute
-import com.trackpay.app.ui.goals.GoalsPlaceholder
+import com.trackpay.app.ui.goals.GoalEditorRoute
+import com.trackpay.app.ui.goals.GoalsRoute
 import com.trackpay.app.ui.history.HistoryRoute
 import com.trackpay.app.ui.insights.InsightsPlaceholder
 import com.trackpay.app.ui.jobs.JobEditorRoute
@@ -38,6 +41,10 @@ private object Routes {
     const val SESSION_EDIT = "sessionEdit"
     const val SESSION_EDIT_ARG = "sessionId"
     const val SESSION_EDIT_ROUTE = "sessionEdit/{sessionId}"
+    const val GOAL_EDIT = "goalEdit"
+    const val GOAL_EDIT_ARG = "goalId"
+    const val GOAL_EDIT_TEMPLATE_ARG = "template"
+    const val GOAL_EDIT_ROUTE = "goalEdit/{goalId}?template={template}"
 }
 
 @Composable
@@ -92,6 +99,9 @@ fun TrackPayAppShell() {
             composable(TopLevelDestination.Dashboard.route) {
                 DashboardRoute(
                     onOpenJobs = { navController.navigate(Routes.JOBS) },
+                    onOpenGoal = { id ->
+                        navController.navigate(goalEditRoute(id))
+                    },
                 )
             }
             composable(TopLevelDestination.History.route) {
@@ -108,7 +118,17 @@ fun TrackPayAppShell() {
                 InsightsPlaceholder()
             }
             composable(TopLevelDestination.Goals.route) {
-                GoalsPlaceholder()
+                GoalsRoute(
+                    onAddGoal = {
+                        navController.navigate(goalEditRoute("new"))
+                    },
+                    onEditGoal = { id ->
+                        navController.navigate(goalEditRoute(id))
+                    },
+                    onUseTemplate = { template ->
+                        navController.navigate(goalEditRoute("new", template.name))
+                    },
+                )
             }
             composable(TopLevelDestination.Settings.route) {
                 SettingsScreen(
@@ -131,6 +151,30 @@ fun TrackPayAppShell() {
                 val jobId = entry.arguments?.getString(Routes.JOB_EDIT_ARG)
                 JobEditorRoute(
                     jobId = jobId?.takeUnless { it == "new" },
+                    onBack = { navController.popBackStack() },
+                )
+            }
+            composable(
+                route = Routes.GOAL_EDIT_ROUTE,
+                arguments = listOf(
+                    navArgument(Routes.GOAL_EDIT_ARG) { type = NavType.StringType },
+                    navArgument(Routes.GOAL_EDIT_TEMPLATE_ARG) {
+                        type = NavType.StringType
+                        defaultValue = ""
+                    },
+                ),
+            ) { entry ->
+                val rawId = entry.arguments?.getString(Routes.GOAL_EDIT_ARG)
+                val templateName = entry.arguments
+                    ?.getString(Routes.GOAL_EDIT_TEMPLATE_ARG)
+                    .orEmpty()
+                    .let { raw -> if (raw.isBlank()) null else Uri.decode(raw) }
+                val template = templateName?.let { name ->
+                    GoalDefaults.TEMPLATES.firstOrNull { it.name == name }
+                }
+                GoalEditorRoute(
+                    goalId = rawId?.takeUnless { it == "new" },
+                    template = template,
                     onBack = { navController.popBackStack() },
                 )
             }
@@ -161,4 +205,9 @@ fun TrackPayAppShell() {
             }
         }
     }
+}
+
+private fun goalEditRoute(goalId: String, templateName: String? = null): String {
+    val encodedTemplate = Uri.encode(templateName.orEmpty())
+    return "${Routes.GOAL_EDIT}/$goalId?template=$encodedTemplate"
 }

@@ -7,11 +7,13 @@ import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
 import com.trackpay.app.data.local.TrackPayDatabase
 import com.trackpay.app.data.local.dao.BreakIntervalDao
+import com.trackpay.app.data.local.dao.GoalAllocationDao
+import com.trackpay.app.data.local.dao.GoalDao
 import com.trackpay.app.data.local.dao.JobDao
 import com.trackpay.app.data.local.dao.WorkSessionDao
 import com.trackpay.app.domain.time.Clock
 import com.trackpay.app.domain.time.SystemClock
-import com.trackpay.app.domain.usecase.NoOpSessionMutationHooks
+import com.trackpay.app.domain.usecase.AllocationSessionMutationHooks
 import com.trackpay.app.domain.usecase.SessionMutationHooks
 
 import dagger.Module
@@ -50,6 +52,12 @@ object AppModule {
     fun provideBreakIntervalDao(db: TrackPayDatabase): BreakIntervalDao = db.breakIntervalDao()
 
     @Provides
+    fun provideGoalDao(db: TrackPayDatabase): GoalDao = db.goalDao()
+
+    @Provides
+    fun provideGoalAllocationDao(db: TrackPayDatabase): GoalAllocationDao = db.goalAllocationDao()
+
+    @Provides
     @Singleton
     fun providePreferencesDataStore(
         @ApplicationContext context: Context,
@@ -61,5 +69,5 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideSessionMutationHooks(impl: NoOpSessionMutationHooks): SessionMutationHooks = impl
+    fun provideSessionMutationHooks(impl: AllocationSessionMutationHooks): SessionMutationHooks = impl
 }

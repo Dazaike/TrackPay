@@ -65,3 +65,47 @@ data class BreakIntervalEntity(
     val startAt: Long,
     val endAt: Long?,
 )
+
+@Entity(
+    tableName = "goals",
+    indices = [
+        Index("status"),
+        Index(value = ["status", "sortOrder"]),
+    ],
+)
+data class GoalEntity(
+    @PrimaryKey val id: String,
+    val name: String,
+    val targetMinor: Long,
+    val deadlineEpochDay: Long,
+    val iconKey: String,
+    val colorArgb: Int,
+    val allocationBps: Int,
+    val status: String,
+    val createdAt: Long,
+    val sortOrder: Int?,
+)
+
+@Entity(
+    tableName = "goal_allocations",
+    foreignKeys = [
+        ForeignKey(
+            entity = GoalEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["goalId"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
+    indices = [
+        Index("goalId"),
+        Index("sessionId"),
+        Index(value = ["goalId", "sessionId"], unique = true),
+    ],
+)
+data class GoalAllocationEntity(
+    @PrimaryKey val id: String,
+    val goalId: String,
+    val sessionId: String,
+    val amountMinor: Long,
+    val createdAt: Long,
+)

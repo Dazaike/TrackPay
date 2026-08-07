@@ -20,6 +20,8 @@
     <string name="dashboard_no_jobs_body">Create a job with an hourly rate, then clock in.</string>
     <string name="dashboard_create_job">Create job</string>
     <string name="dashboard_jobs">Jobs</string>
+    <string name="dashboard_goal_peek_label">Top goal</string>
+    <string name="dashboard_goal_peek_progress">%1$s of %2$s</string>
     <string name="dashboard_select_job">Job</string>
     <string name="dashboard_since">since %1$s</string>
     <string name="dashboard_rate_since">%1$s · since %2$s</string>
@@ -38,7 +40,35 @@
     <string name="jobs_empty">No jobs yet</string>
 
     <string name="settings_jobs_link">Manage jobs</string>
-    <string name="settings_phase_stub">Phase 2 · history &amp; editing</string>
+    <string name="settings_phase_stub">Phase 3 · goals</string>
+
+    <string name="goals_title">Goals</string>
+    <string name="goals_loading">Loading…</string>
+    <string name="goals_add">Add goal</string>
+    <string name="goals_edit">Edit goal</string>
+    <string name="goals_save">Save</string>
+    <string name="goals_archive">Archive</string>
+    <string name="goals_name">Name</string>
+    <string name="goals_target">Target amount</string>
+    <string name="goals_deadline">Deadline</string>
+    <string name="goals_deadline_hint">yyyy-MM-dd</string>
+    <string name="goals_color">Color</string>
+    <string name="goals_icon">Icon</string>
+    <string name="goals_allocation">Shift allocation</string>
+    <string name="goals_allocation_percent">Percent of each shift</string>
+    <string name="goals_allocation_total">Total across active goals: %1$s%%</string>
+    <string name="goals_allocation_over_limit">Total allocation exceeds 100%. Lower this goal or others.</string>
+    <string name="goals_allocation_label">%1$s of each shift</string>
+    <string name="goals_header_title">Saved toward goals</string>
+    <string name="goals_header_of_target">of %1$s target</string>
+    <string name="goals_header_percent">%1$d%% of target · %2$d active</string>
+    <string name="goals_your_goals">Your goals</string>
+    <string name="goals_empty_body">No goals yet. Pick a template or tap + to create one. A cut of each shift can fund them automatically.</string>
+    <string name="goals_templates_title">Templates</string>
+    <string name="goals_template_horizon">%1$d mo</string>
+    <string name="goals_saved_of_target">%1$s of %2$s</string>
+    <string name="goals_pace_per_week">Save %1$s/wk</string>
+    <string name="goals_overdue">Overdue</string>
 
     <string name="history_title">History</string>
     <string name="history_loading">Loading…</string>
