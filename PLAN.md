@@ -1,7 +1,7 @@
 # TrackPay — Build Plan
 
-**Status:** plan locked · no app code yet  
-**Version:** 0.1.0-plan  
+**Status:** plan locked · phase briefs ready for subagents · no app code yet  
+**Version:** 0.3.0-plan  
 **Source reference:** [Clocked In: Budget & Savings](https://apps.apple.com/us/app/clocked-in-budget-savings/id6772886245)  
 **Target:** Material 3 Android · Kotlin · Jetpack Compose  
 **Repo:** `/home/daz/Scratchpad/TrackPay`
@@ -202,57 +202,55 @@ Notification actions call the same use cases as the UI.
 
 ## Phases
 
+**Subagent work orders (source of truth for execution):** [`phases/`](./phases/README.md)
+
+| Phase | Brief | Ship version |
+|-----:|-------|--------------|
+| 0 | [Scaffold](./phases/00-scaffold.md) | `0.1.0` |
+| 1 | [Timer spine](./phases/01-timer-spine.md) | `0.2.0` |
+| 2 | [History & editing](./phases/02-history-editing.md) | `0.3.0` |
+| 3 | [Goals](./phases/03-goals.md) | `0.4.0` |
+| 4 | [Insights & motivation](./phases/04-insights-motivation.md) | `0.5.0` |
+| 5 | [Themes](./phases/05-themes.md) | `0.6.0` |
+| 6 | [Settings, location & polish](./phases/06-settings-location-polish.md) | `1.0.0` |
+
+Root bullets below are orientation only. **If a brief conflicts with this file, the brief wins** until this file is updated.
+
 ### Phase 0 — Scaffold
 
-- Compose M3 app shell, package `com.trackpay.app`
-- Verdant dark theme, 5-tab nav placeholders
-- Hilt + Room + DataStore wiring
-- Version `0.1.0`
-- No billing module, no widget module
+Compose M3 shell, Hilt, Room, DataStore, 5-tab placeholders. → `phases/00-scaffold.md`
 
 ### Phase 1 — Timer spine
 
-- Jobs CRUD (unlimited)
-- Clock in/out/pause + rate snapshot
-- FGS + ongoing notification with live `$` / elapsed (API 33+ permission + update cadence)
-- Dashboard hero
-- Domain tests: earnings, pause, OT day split
+Jobs, clock in/out/pause, FGS live `$`, Dashboard hero, pay math tests. → `phases/01-timer-spine.md`
 
 ### Phase 2 — History & editing
 
-- List, search, totals
-- Filters (job, range)
-- Session detail
-- **Manual create + edit session** (free — first-class, not gated)
-- Notes, delete; allocation recompute on edit
+List/search/filters, manual create, full edit/delete. → `phases/02-history-editing.md`
 
 ### Phase 3 — Goals
 
-- CRUD, templates, allocation on clock-out, pace math, Goals tab
+CRUD, templates, allocate on clock-out/mutate, pace. → `phases/03-goals.md`
 
 ### Phase 4 — Insights & motivation
 
-- Aggregations, charts, all ranges, weekly challenge, streaks, achievements
+Challenge, charts, weekday averages, streaks, achievements. → `phases/04-insights-motivation.md`
 
 ### Phase 5 — Themes
 
-- Wallet from lifetime earnings, unlock/apply packs
+Cosmetic wallet from lifetime earnings, unlock/apply packs. → `phases/05-themes.md`
 
 ### Phase 6 — Settings & location & live-status polish
 
-- Settings IA
-- Optional geofence auto clock + reminders
-- Android 13+ notification UX polish
-- Android 16 Live Updates path if SDK ready
-- Onboarding, empty states, a11y, battery-aware tick throttle
+Settings IA, geofence, onboarding, a11y, notif polish, Live Updates if SDK allows. → `phases/06-settings-location-polish.md`
 
 ### Deferred
 
 - Wear OS
-- Widgets
+- Home screen widgets
 - Cloud backup/sync
 - Schedule-based auto clock-in
-- Export (nice later; not blocked on paywall)
+- Export (nice later)
 
 ---
 
@@ -304,4 +302,5 @@ Ship when: unlimited jobs, live timer + FGS notification that ticks `$` closed, 
 ## Changelog (plan)
 
 - **0.1.0-plan** — initial clone plan with Pro/IAP, widgets, Wear deferred
-- **0.2.0-plan** — all former Pro features free; strip billing; drop widgets; drop Wear; keep Android 13+ live status (FGS ongoing + future Live Updates)
+- **0.2.0-plan** — all former Pro features free; strip billing; drop widgets; drop Wear; keep Android 13+ live status
+- **0.3.0-plan** — split each phase into standalone subagent briefs under `phases/`
