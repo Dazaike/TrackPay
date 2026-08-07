@@ -60,6 +60,42 @@ data class ActiveSession(
     val breaks: List<BreakInterval>,
 )
 
+data class SessionListItem(
+    val session: WorkSession,
+    val jobName: String,
+    val jobColorArgb: Int,
+    val earnedMinor: Long,
+    val activeMillis: Long,
+    val regularMinutes: Long,
+    val otMinutes: Long,
+)
+
+data class SessionDetail(
+    val session: WorkSession,
+    val job: Job?,
+    val breaks: List<BreakInterval>,
+    val breakdown: EarningsBreakdown,
+)
+
+data class SessionTotals(
+    val earnedMinor: Long,
+    val shiftCount: Int,
+    val activeMillis: Long,
+)
+
+data class HistoryFilter(
+    val query: String = "",
+    val jobId: String? = null,
+    val rangeStartMillis: Long? = null,
+    val rangeEndExclusiveMillis: Long? = null,
+)
+
+/** Input break for create/edit forms. */
+data class BreakInput(
+    val startAt: Long,
+    val endAt: Long,
+)
+
 object JobDefaults {
     const val DEFAULT_OT_THRESHOLD_MINUTES: Int = 480
     const val DEFAULT_COLOR_ARGB: Int = 0xFF10B981.toInt()

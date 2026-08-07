@@ -19,10 +19,12 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.trackpay.app.ui.dashboard.DashboardRoute
 import com.trackpay.app.ui.goals.GoalsPlaceholder
-import com.trackpay.app.ui.history.HistoryPlaceholder
+import com.trackpay.app.ui.history.HistoryRoute
 import com.trackpay.app.ui.insights.InsightsPlaceholder
 import com.trackpay.app.ui.jobs.JobEditorRoute
 import com.trackpay.app.ui.jobs.JobsListRoute
+import com.trackpay.app.ui.session.SessionDetailRoute
+import com.trackpay.app.ui.session.SessionEditorRoute
 import com.trackpay.app.ui.settings.SettingsScreen
 
 private object Routes {
@@ -30,6 +32,12 @@ private object Routes {
     const val JOB_EDIT = "jobEdit"
     const val JOB_EDIT_ARG = "jobId"
     const val JOB_EDIT_ROUTE = "jobEdit/{jobId}"
+    const val SESSION_DETAIL = "sessionDetail"
+    const val SESSION_DETAIL_ARG = "sessionId"
+    const val SESSION_DETAIL_ROUTE = "sessionDetail/{sessionId}"
+    const val SESSION_EDIT = "sessionEdit"
+    const val SESSION_EDIT_ARG = "sessionId"
+    const val SESSION_EDIT_ROUTE = "sessionEdit/{sessionId}"
 }
 
 @Composable
@@ -87,7 +95,14 @@ fun TrackPayAppShell() {
                 )
             }
             composable(TopLevelDestination.History.route) {
-                HistoryPlaceholder()
+                HistoryRoute(
+                    onOpenSession = { id ->
+                        navController.navigate("${Routes.SESSION_DETAIL}/$id")
+                    },
+                    onCreateSession = {
+                        navController.navigate("${Routes.SESSION_EDIT}/new")
+                    },
+                )
             }
             composable(TopLevelDestination.Insights.route) {
                 InsightsPlaceholder()
@@ -116,6 +131,31 @@ fun TrackPayAppShell() {
                 val jobId = entry.arguments?.getString(Routes.JOB_EDIT_ARG)
                 JobEditorRoute(
                     jobId = jobId?.takeUnless { it == "new" },
+                    onBack = { navController.popBackStack() },
+                )
+            }
+            composable(
+                route = Routes.SESSION_DETAIL_ROUTE,
+                arguments = listOf(
+                    navArgument(Routes.SESSION_DETAIL_ARG) { type = NavType.StringType },
+                ),
+            ) { entry ->
+                val sessionId = entry.arguments?.getString(Routes.SESSION_DETAIL_ARG).orEmpty()
+                SessionDetailRoute(
+                    sessionId = sessionId,
+                    onBack = { navController.popBackStack() },
+                    onEdit = { id -> navController.navigate("${Routes.SESSION_EDIT}/$id") },
+                )
+            }
+            composable(
+                route = Routes.SESSION_EDIT_ROUTE,
+                arguments = listOf(
+                    navArgument(Routes.SESSION_EDIT_ARG) { type = NavType.StringType },
+                ),
+            ) { entry ->
+                val rawId = entry.arguments?.getString(Routes.SESSION_EDIT_ARG)
+                SessionEditorRoute(
+                    sessionId = rawId?.takeUnless { it == "new" },
                     onBack = { navController.popBackStack() },
                 )
             }

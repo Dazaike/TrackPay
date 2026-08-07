@@ -84,6 +84,21 @@ interface WorkSessionDao {
         """,
     )
     suspend fun listCompletedBetween(fromInclusive: Long, toExclusive: Long): List<WorkSessionEntity>
+
+    @Query("DELETE FROM work_sessions WHERE id = :id")
+    suspend fun deleteById(id: String)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(session: WorkSessionEntity)
+
+    @Query(
+        """
+        SELECT * FROM work_sessions
+        WHERE status = 'COMPLETED'
+        ORDER BY startAt DESC
+        """,
+    )
+    suspend fun listAllCompleted(): List<WorkSessionEntity>
 }
 
 @Dao
@@ -109,4 +124,10 @@ interface BreakIntervalDao {
         """,
     )
     suspend fun getOpenBreak(sessionId: String): BreakIntervalEntity?
+
+    @Query("DELETE FROM break_intervals WHERE sessionId = :sessionId")
+    suspend fun deleteForSession(sessionId: String)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(breaks: List<BreakIntervalEntity>)
 }

@@ -11,6 +11,9 @@ import com.trackpay.app.data.local.dao.JobDao
 import com.trackpay.app.data.local.dao.WorkSessionDao
 import com.trackpay.app.domain.time.Clock
 import com.trackpay.app.domain.time.SystemClock
+import com.trackpay.app.domain.usecase.NoOpSessionMutationHooks
+import com.trackpay.app.domain.usecase.SessionMutationHooks
+
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -55,4 +58,8 @@ object AppModule {
     @Provides
     @Singleton
     fun provideClock(): Clock = SystemClock()
+
+    @Provides
+    @Singleton
+    fun provideSessionMutationHooks(impl: NoOpSessionMutationHooks): SessionMutationHooks = impl
 }

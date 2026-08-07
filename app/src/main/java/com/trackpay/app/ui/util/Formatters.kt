@@ -69,6 +69,31 @@ object TimeFormat {
     }
 }
 
+object DateTimeFormat {
+    private val localDateTimeFormatter: DateTimeFormatter =
+        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+
+    fun formatLocalDateTime(
+        epochMillis: Long,
+        zoneId: ZoneId = ZoneId.systemDefault(),
+    ): String {
+        val zdt = Instant.ofEpochMilli(epochMillis).atZone(zoneId)
+        return localDateTimeFormatter.format(zdt)
+    }
+
+    fun parseLocalDateTime(
+        input: String,
+        zoneId: ZoneId = ZoneId.systemDefault(),
+    ): Long? {
+        val trimmed = input.trim()
+        if (trimmed.isEmpty()) return null
+        return runCatching {
+            val local = java.time.LocalDateTime.parse(trimmed, localDateTimeFormatter)
+            local.atZone(zoneId).toInstant().toEpochMilli()
+        }.getOrNull()
+    }
+}
+
 object DurationMath {
     fun hoursToMillis(hours: Double): Long = (hours * 3_600_000.0).toLong()
     fun minutesToMillis(minutes: Long): Long = TimeUnit.MINUTES.toMillis(minutes)

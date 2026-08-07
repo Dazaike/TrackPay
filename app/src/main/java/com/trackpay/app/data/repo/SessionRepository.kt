@@ -5,9 +5,12 @@ import com.trackpay.app.data.local.dao.JobDao
 import com.trackpay.app.data.local.dao.WorkSessionDao
 import com.trackpay.app.data.local.toDomain
 import com.trackpay.app.data.local.toEntity
+import com.trackpay.app.domain.calc.EarningsCalculator
 import com.trackpay.app.domain.model.ActiveSession
 import com.trackpay.app.domain.model.BreakInterval
+import com.trackpay.app.domain.model.SessionDetail
 import com.trackpay.app.domain.model.WorkSession
+import com.trackpay.app.domain.time.Clock
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -23,6 +26,7 @@ class SessionRepository @Inject constructor(
     private val workSessionDao: WorkSessionDao,
     private val breakIntervalDao: BreakIntervalDao,
     private val jobDao: JobDao,
+    private val clock: Clock,
 ) {
     suspend fun getActiveSession(): WorkSession? =
         workSessionDao.getActive()?.toDomain()
@@ -57,6 +61,39 @@ class SessionRepository @Inject constructor(
 
     suspend fun listCompletedBetween(fromInclusive: Long, toExclusive: Long): List<WorkSession> =
         workSessionDao.listCompletedBetween(fromInclusive, toExclusive).map { it.toDomain() }
+
+    suspend fun listAllCompleted(): List<WorkSession> =
+        workSessionDao.listAllCompleted().map { it.toDomain() }
+
+    suspend fun deleteSession(id: String) {
+        breakIntervalDao.deleteForSession(id)
+        workSessionDao.deleteById(id)
+    }
+
+    suspend fun replaceBreaks(sessionId: String, breaks: List<BreakInterval>) {
+        breakIntervalDao.deleteForSession(sessionId)
+        if (breaks.isNotEmpty()) {
+            breakIntervalDao.insertAll(breaks.map { it.toEntity() })
+        }
+    }
+
+    suspend fun getSessionDetail(id: String): SessionDetail? {
+        val session = workSessionDao.getById(id)?.toDomain() ?: return null
+        val job = jobDao.getById(session.jobId)?.toDomain()
+        val breaks = breakIntervalDao.listForSession(id).map { it.toDomain() }
+        val now = clock.now()
+        val breakdown = EarningsCalculator.calculate(
+            session = session,
+            breaks = breaks,
+            nowMillis = session.endAt ?: now,
+        )
+        return SessionDetail(
+            session = session,
+            job = job,
+            breaks = breaks,
+            breakdown = breakdown,
+        )
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun observeActiveSession(): Flow<ActiveSession?> =

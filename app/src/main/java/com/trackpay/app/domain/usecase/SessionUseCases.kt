@@ -110,9 +110,10 @@ class ClockOutUseCase @Inject constructor(
     private val sessionRepository: SessionRepository,
     private val clock: Clock,
     private val timerServiceController: TimerServiceController,
+    private val hooks: SessionMutationHooks,
 ) {
     /**
-     * Completes the active session. Phase 3 will hook AllocateSession here.
+     * Completes the active session and notifies [SessionMutationHooks].
      */
     suspend operator fun invoke(source: SessionSource = SessionSource.MANUAL): WorkSession {
         val active = sessionRepository.getActiveSession() ?: throw NoActiveSessionException()
@@ -130,9 +131,7 @@ class ClockOutUseCase @Inject constructor(
             source = source,
         )
         sessionRepository.update(completed)
-        // Phase 3+: AllocateSession(sessionId)
-        // Phase 4+: evaluate achievements
-        // Phase 5+: refresh wallet derive
+        hooks.onSessionCompleted(completed.id)
         timerServiceController.stop()
         return completed
     }
