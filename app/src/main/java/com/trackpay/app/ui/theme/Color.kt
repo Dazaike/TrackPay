@@ -2,18 +2,18 @@ package com.trackpay.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Dark scheme seeds
-val VerdantGreen = Color(0xFF1FA97A)
-val VerdantGreenLight = Color(0xFF6EE7B7)
-val VerdantOnPrimary = Color(0xFF003828)
-val VerdantPrimaryContainer = Color(0xFF005C3A)
-val VerdantOnPrimaryContainer = Color(0xFF8FF0C0)
-val VerdantDarkBackground = Color(0xFF0B1210)
-val VerdantDarkSurface = Color(0xFF0F1815)
-val VerdantDarkSurfaceContainer = Color(0xFF16201C)
-val VerdantDarkOnSurface = Color(0xFFE1E3DF)
-val VerdantDarkOnSurfaceVariant = Color(0xFFA0A8A3)
-val VerdantDarkOutline = Color(0xFF6A7270)
+// Dark scheme seeds - TrackPay Verdant (Handoff exact: #8FDBAE, #0B3B22, #1A1110, #271D1C, #322726, #F1DFDC, #D8C2BE)
+val VerdantGreen = Color(0xFF8FDBAE)
+val VerdantGreenLight = Color(0xFFC8F0D9)
+val VerdantOnPrimary = Color(0xFF0B3B22)
+val VerdantPrimaryContainer = Color(0xFF1F4230)
+val VerdantOnPrimaryContainer = Color(0xFFC8F0D9)
+val VerdantDarkBackground = Color(0xFF1A1110)
+val VerdantDarkSurface = Color(0xFF271D1C)
+val VerdantDarkSurfaceContainer = Color(0xFF322726)
+val VerdantDarkOnSurface = Color(0xFFF1DFDC)
+val VerdantDarkOnSurfaceVariant = Color(0xFFD8C2BE)
+val VerdantDarkOutline = Color(0xFF534341)
 val VerdantError = Color(0xFFFFB4AB)
 
 // Light scheme

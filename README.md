@@ -29,11 +29,11 @@ Material 3 Android app. Local-first pay timer + savings goals + insights. Inspir
 
 ## Status
 
-**v1 implemented.** Phase 6 settings, onboarding, optional geofence polish shipped.
+**v1.0.2 implemented.** Verdant Dark redesign handoff layout & UI polish shipped.
 
 | | |
 |---|---|
-| Version | `1.0.1` (versionCode `8`) |
+| Version | `1.0.2` (versionCode `9`) |
 | Package | `com.trackpay.app` |
 | Stack | Kotlin · Compose · Material 3 · Room · Hilt · DataStore |
 | Min SDK | 26 (live-status polish on 33+) |

@@ -85,14 +85,23 @@ fun GoalsScreen(
     onEditGoal: (String) -> Unit,
     onUseTemplate: (GoalTemplate) -> Unit,
 ) {
+    val isDark = MaterialTheme.colorScheme.background == Color(0xFF1A1110)
+    val surfaceBg = if (isDark) Color(0xFF1A1110) else MaterialTheme.colorScheme.background
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.goals_title)) },
+                title = { Text(stringResource(R.string.goals_title), fontWeight = FontWeight.Medium) },
+                colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(containerColor = surfaceBg),
             )
         },
+        containerColor = surfaceBg,
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddGoal) {
+            FloatingActionButton(
+                onClick = onAddGoal,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+            ) {
                 Icon(
                     Icons.Default.Add,
                     contentDescription = stringResource(R.string.goals_add),

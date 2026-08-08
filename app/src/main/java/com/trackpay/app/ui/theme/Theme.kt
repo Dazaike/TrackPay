@@ -12,7 +12,7 @@ import com.trackpay.app.domain.model.ThemeIds
 @Composable
 fun TrackPayTheme(
     themeId: String = ThemeIds.DEFAULT,
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = true,
     content: @Composable () -> Unit,
 ) {
     val colorScheme = ThemePacks.schemeFor(themeId, darkTheme)

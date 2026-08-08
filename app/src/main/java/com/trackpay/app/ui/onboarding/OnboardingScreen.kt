@@ -5,6 +5,7 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +14,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -108,105 +115,182 @@ fun OnboardingScreen(
     }
     val progress = (stepIndex + 1) / 4f
 
+    val isDark = MaterialTheme.colorScheme.background == Color(0xFF1A1110)
+    val surfaceBg = if (isDark) Color(0xFF1A1110) else MaterialTheme.colorScheme.background
+
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.onboarding_title)) },
-            )
-        },
+        containerColor = surfaceBg,
     ) { padding ->
         Column(
             Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(horizontal = 24.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+                .padding(horizontal = 24.dp, vertical = 20.dp),
         ) {
-            LinearProgressIndicator(
-                progress = { progress },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-            )
-
-            when (state.step) {
-                OnboardingStep.Welcome -> WelcomeStep(onNext = onNextWelcome)
-                OnboardingStep.CreateJob -> CreateJobStep(
-                    name = state.jobName,
-                    rate = state.hourlyRateText,
-                    currencyCode = state.currencyCode,
-                    currencyCodes = state.currencyCodes,
-                    error = state.errorMessage,
-                    onNameChange = onJobNameChange,
-                    onRateChange = onHourlyRateChange,
-                    onCurrencySelected = onCurrencySelected,
-                    onBack = onBack,
-                    onNext = onNextJob,
-                )
-                OnboardingStep.OptionalGoal -> OptionalGoalStep(
-                    templates = state.templates,
-                    selected = state.selectedTemplate,
-                    customSelected = state.customGoalSelected,
-                    customName = state.customGoalName,
-                    customTarget = state.customGoalTargetText,
-                    hasSelection = state.hasGoalSelection,
-                    error = state.errorMessage,
-                    onSelect = onSelectTemplate,
-                    onSelectCustom = onSelectCustomGoal,
-                    onCustomNameChange = onCustomGoalNameChange,
-                    onCustomTargetChange = onCustomGoalTargetChange,
-                    onBack = onBack,
-                    onSkip = onSkipGoal,
-                    onNext = onNextGoal,
-                )
-                OnboardingStep.Permissions -> PermissionsStep(
-                    saving = state.saving,
-                    error = state.errorMessage,
-                    onBack = onBack,
-                    onRequestPermissions = {
-                        val perms = buildList {
-                            if (Build.VERSION.SDK_INT >= 33) {
-                                add(Manifest.permission.POST_NOTIFICATIONS)
-                            }
-                            add(Manifest.permission.ACCESS_COARSE_LOCATION)
-                            add(Manifest.permission.ACCESS_FINE_LOCATION)
-                        }.toTypedArray()
-                        if (perms.isNotEmpty()) {
-                            permissionLauncher.launch(perms)
-                        }
-                    },
-                    onFinish = onFinish,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                if (stepIndex > 0) {
+                    androidx.compose.material3.IconButton(
+                        onClick = onBack,
+                        modifier = Modifier.size(36.dp),
+                    ) {
+                        androidx.compose.material3.Icon(
+                            imageVector = androidx.compose.material.icons.Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.action_back),
+                            tint = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                }
+                LinearProgressIndicator(
+                    progress = { progress },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(6.dp)
+                        .clip(androidx.compose.foundation.shape.CircleShape),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = if (isDark) Color(0xFF322726) else MaterialTheme.colorScheme.surfaceVariant,
+                    strokeCap = androidx.compose.ui.graphics.StrokeCap.Round,
                 )
             }
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(20.dp))
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                when (state.step) {
+                    OnboardingStep.Welcome -> WelcomeStep(onNext = onNextWelcome)
+                    OnboardingStep.CreateJob -> CreateJobStep(
+                        name = state.jobName,
+                        rate = state.hourlyRateText,
+                        currencyCode = state.currencyCode,
+                        currencyCodes = state.currencyCodes,
+                        error = state.errorMessage,
+                        onNameChange = onJobNameChange,
+                        onRateChange = onHourlyRateChange,
+                        onCurrencySelected = onCurrencySelected,
+                        onBack = onBack,
+                        onNext = onNextJob,
+                    )
+                    OnboardingStep.OptionalGoal -> OptionalGoalStep(
+                        templates = state.templates,
+                        selected = state.selectedTemplate,
+                        customSelected = state.customGoalSelected,
+                        customName = state.customGoalName,
+                        customTarget = state.customGoalTargetText,
+                        hasSelection = state.hasGoalSelection,
+                        error = state.errorMessage,
+                        onSelect = onSelectTemplate,
+                        onSelectCustom = onSelectCustomGoal,
+                        onCustomNameChange = onCustomGoalNameChange,
+                        onCustomTargetChange = onCustomGoalTargetChange,
+                        onBack = onBack,
+                        onSkip = onSkipGoal,
+                        onNext = onNextGoal,
+                    )
+                    OnboardingStep.Permissions -> PermissionsStep(
+                        saving = state.saving,
+                        error = state.errorMessage,
+                        onBack = onBack,
+                        onRequestPermissions = {
+                            val perms = buildList {
+                                if (Build.VERSION.SDK_INT >= 33) {
+                                    add(Manifest.permission.POST_NOTIFICATIONS)
+                                }
+                                add(Manifest.permission.ACCESS_COARSE_LOCATION)
+                                add(Manifest.permission.ACCESS_FINE_LOCATION)
+                            }.toTypedArray()
+                            if (perms.isNotEmpty()) {
+                                permissionLauncher.launch(perms)
+                            }
+                        },
+                        onFinish = onFinish,
+                    )
+                }
+            }
         }
     }
 }
-
 @Composable
 private fun WelcomeStep(onNext: () -> Unit) {
-    Spacer(Modifier.height(12.dp))
-    Text(
-        text = stringResource(R.string.onboarding_welcome_title),
-        style = MaterialTheme.typography.headlineMedium,
-        fontWeight = FontWeight.Bold,
-    )
-    Text(
-        text = stringResource(R.string.onboarding_welcome_body),
-        style = MaterialTheme.typography.bodyLarge,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
-    Spacer(Modifier.height(8.dp))
-    Button(
-        onClick = onNext,
-        modifier = Modifier.fillMaxWidth(),
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceBetween,
     ) {
-        Text(stringResource(R.string.onboarding_get_started))
+        Spacer(Modifier.height(32.dp))
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+        ) {
+            androidx.compose.foundation.layout.Box(
+                modifier = Modifier
+                    .size(180.dp)
+                    .clip(androidx.compose.foundation.shape.CircleShape)
+                    .background(
+                        androidx.compose.ui.graphics.Brush.radialGradient(
+                            colors = listOf(Color(0xFF8FDBAE), Color(0xFF1F4230)),
+                        ),
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "$",
+                    style = MaterialTheme.typography.displayLarge.copy(fontSize = 54.sp),
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF0B3B22),
+                )
+            }
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.onboarding_welcome_title),
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                )
+                Text(
+                    text = stringResource(R.string.onboarding_welcome_body),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                )
+            }
+        }
+
+        Spacer(Modifier.height(32.dp))
+
+        Button(
+            onClick = onNext,
+            modifier = Modifier
+                .height(56.dp)
+                .fillMaxWidth(0.75f)
+                .align(Alignment.CenterHorizontally),
+            shape = androidx.compose.foundation.shape.CircleShape,
+            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+            ),
+        ) {
+            Text(
+                text = stringResource(R.string.onboarding_get_started),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+        }
     }
 }
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CreateJobStep(

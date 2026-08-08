@@ -87,10 +87,17 @@ fun InsightsScreen(
     onSelectRange: (InsightsRange) -> Unit,
     onSelectMetric: (InsightsMetric) -> Unit,
 ) {
+    val isDark = MaterialTheme.colorScheme.background == androidx.compose.ui.graphics.Color(0xFF1A1110)
+    val surfaceBg = if (isDark) androidx.compose.ui.graphics.Color(0xFF1A1110) else MaterialTheme.colorScheme.background
+
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text(stringResource(R.string.insights_title)) })
+            TopAppBar(
+                title = { Text(stringResource(R.string.insights_title), fontWeight = FontWeight.Medium) },
+                colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(containerColor = surfaceBg),
+            )
         },
+        containerColor = surfaceBg,
     ) { padding ->
         when {
             state.loading -> {
@@ -106,7 +113,6 @@ fun InsightsScreen(
                     )
                 }
             }
-
             !state.hasData -> {
                 EmptyInsightsPane(
                     modifier = Modifier

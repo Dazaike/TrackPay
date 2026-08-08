@@ -87,11 +87,18 @@ fun SettingsScreen(
     val context = LocalContext.current
     var currencyExpanded by remember { mutableStateOf(false) }
 
+    val isDark = MaterialTheme.colorScheme.background == androidx.compose.ui.graphics.Color(0xFF1A1110)
+    val surfaceBg = if (isDark) androidx.compose.ui.graphics.Color(0xFF1A1110) else MaterialTheme.colorScheme.background
+
     Scaffold(
         modifier = modifier,
         topBar = {
-            TopAppBar(title = { Text(stringResource(R.string.settings_title)) })
+            TopAppBar(
+                title = { Text(stringResource(R.string.settings_title), fontWeight = androidx.compose.ui.text.font.FontWeight.Medium) },
+                colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(containerColor = surfaceBg),
+            )
         },
+        containerColor = surfaceBg,
     ) { padding ->
         Column(
             Modifier

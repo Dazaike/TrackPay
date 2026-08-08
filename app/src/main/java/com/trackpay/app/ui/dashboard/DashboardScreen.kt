@@ -13,10 +13,24 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.layout
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -124,29 +138,63 @@ fun DashboardScreen(
         onDismissError()
     }
 
+    val isDark = MaterialTheme.colorScheme.background == Color(0xFF1A1110)
+    val surfaceBg = if (isDark) Color(0xFF1A1110) else MaterialTheme.colorScheme.background
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Dashboard") },
-                actions = {
-                    IconButton(onClick = { menuOpen = true }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "More")
+                title = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primary),
+                        )
+                        Text(
+                            text = "Dashboard",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Medium,
+                        )
                     }
-                    DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                },
+                actions = {
+                    IconButton(
+                        onClick = { menuOpen = true },
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(if (isDark) Color(0xFF271D1C) else MaterialTheme.colorScheme.surfaceVariant),
+                    ) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "More", tint = MaterialTheme.colorScheme.onSurface)
+                    }
+                    DropdownMenu(
+                        expanded = menuOpen,
+                        onDismissRequest = { menuOpen = false },
+                        modifier = Modifier.background(if (isDark) Color(0xFF322726) else MaterialTheme.colorScheme.surfaceContainer),
+                    ) {
                         DropdownMenuItem(
-                            text = { Text(stringResource(R.string.dashboard_jobs)) },
+                            text = { Text(stringResource(R.string.dashboard_jobs), color = MaterialTheme.colorScheme.onSurface) },
                             onClick = {
                                 menuOpen = false
                                 onOpenJobs()
                             },
                             leadingIcon = {
-                                Icon(Icons.Default.Work, contentDescription = null)
+                                Icon(Icons.Default.Work, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface)
                             },
                         )
                     }
                 },
+                colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
+                    containerColor = surfaceBg,
+                ),
             )
         },
+        containerColor = surfaceBg,
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
         when {
@@ -239,134 +287,243 @@ private fun IdlePane(
     onOpenGoal: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val isDark = MaterialTheme.colorScheme.background == Color(0xFF1A1110)
+    val cardBg = if (isDark) Color(0xFF271D1C) else MaterialTheme.colorScheme.surfaceVariant
+    val overlayBg = if (isDark) Color(0xFF322726) else MaterialTheme.colorScheme.surfaceContainerHigh
+
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
+            .padding(horizontal = 20.dp, vertical = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        PeriodChips(
-            today = state.todayEarnedMinor,
-            week = state.weekEarnedMinor,
-            streakDays = state.streakCurrentDays,
-        )
+        // Dark summary card with streak pill & top goal overlay
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = if (state.topGoal != null) 36.dp else 0.dp),
+        ) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(32.dp),
+                colors = CardDefaults.cardColors(containerColor = cardBg),
+            ) {
+                Column(
+                    modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = if (state.topGoal != null) 44.dp else 20.dp),
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Top,
+                    ) {
+                        Column {
+                            Text(
+                                text = state.selectedJob?.name ?: "No job",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                            state.selectedJob?.let { job ->
+                                Text(
+                                    text = formatMoneyRate(job.hourlyRateMinor),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                        if (state.streakCurrentDays >= 1) {
+                            val infiniteTransition = rememberInfiniteTransition(label = "streakPulsing")
+                            val streakScale by infiniteTransition.animateFloat(
+                                initialValue = 0.95f,
+                                targetValue = 1.18f,
+                                animationSpec = infiniteRepeatable(
+                                    animation = tween(1400, easing = FastOutSlowInEasing),
+                                    repeatMode = RepeatMode.Reverse,
+                                ),
+                                label = "streakScale",
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .graphicsLayer {
+                                        scaleX = streakScale
+                                        scaleY = streakScale
+                                    }
+                                    .clip(RoundedCornerShape(14.dp))
+                                    .background(Color(0xFF5C4400))
+                                    .padding(horizontal = 12.dp, vertical = 6.dp),
+                            ) {
+                                Text(
+                                    text = "🔥 ${state.streakCurrentDays}d",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color(0xFFFFDEA6),
+                                )
+                            }
+                        }
+                    }
 
-        state.topGoal?.let { goal ->
-            DashboardGoalPeek(
-                progress = goal,
-                onClick = { onOpenGoal(goal.goal.id) },
-            )
-        }
+                    Spacer(Modifier.height(24.dp))
 
-        if (state.jobs.size > 1) {
-            JobSelector(
-                jobs = state.jobs,
-                selected = state.selectedJob,
-                expanded = jobMenuOpen,
-                onExpandedChange = onJobMenuOpenChange,
-                onSelect = onSelectJob,
-            )
-        } else {
-            state.selectedJob?.let { job ->
-                Text(
-                    text = job.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    Row(
+                        verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        Column {
+                            Text(
+                                text = "TODAY",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                letterSpacing = 0.5.sp,
+                            )
+                            Spacer(Modifier.height(4.dp))
+                            Text(
+                                text = formatMoney(state.todayEarnedMinor),
+                                style = MaterialTheme.typography.headlineMedium.copy(fontSize = 32.sp),
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary,
+                                maxLines = 1,
+                            )
+                        }
+                        Column(modifier = Modifier.padding(bottom = 4.dp)) {
+                            Text(
+                                text = "WEEK",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                letterSpacing = 0.5.sp,
+                            )
+                            Spacer(Modifier.height(4.dp))
+                            Text(
+                                text = formatMoney(state.weekEarnedMinor),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                            )
+                        }
+                    }
+                }
+            }
+
+            state.topGoal?.let { goal ->
+                val rawTarget = goal.progress.coerceIn(0f, 1f)
+                val animatedProgress by animateFloatAsState(
+                    targetValue = rawTarget,
+                    animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing),
+                    label = "goalProgress",
                 )
-                Text(
-                    text = formatMoneyRate(job.hourlyRateMinor),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                val percent = (animatedProgress * 100f).roundToInt().coerceIn(0, 100)
+                val goalColor = Color(goal.goal.colorArgb)
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(horizontal = 16.dp)
+                        .layout { measurable, constraints ->
+                            val placeable = measurable.measure(constraints)
+                            layout(placeable.width, placeable.height) {
+                                // Placed significantly lower down over card bottom
+                                placeable.placeRelative(0, (placeable.height * 0.65f).roundToInt())
+                            }
+                        }
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(overlayBg)
+                        .clickable { onOpenGoal(goal.goal.id) }
+                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = goal.goal.name,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                            Spacer(Modifier.height(6.dp))
+                            LinearProgressIndicator(
+                                progress = { animatedProgress },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(6.dp)
+                                    .clip(CircleShape),
+                                color = goalColor,
+                                trackColor = Color.White.copy(alpha = 0.12f),
+                                strokeCap = StrokeCap.Round,
+                            )
+                        }
+                        Text(
+                            text = "$percent%",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = goalColor,
+                        )
+                    }
+                }
             }
         }
 
-        Spacer(Modifier.height(12.dp))
+        // Job multi-picker chips
+        if (state.jobs.size > 1) {
+            Spacer(Modifier.height(20.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                state.jobs.forEach { job ->
+                    val isSel = state.selectedJob?.id == job.id
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(18.dp))
+                            .background(if (isSel) MaterialTheme.colorScheme.primary else overlayBg)
+                            .clickable { onSelectJob(job.id) }
+                            .padding(horizontal = 16.dp, vertical = 10.dp),
+                    ) {
+                        Text(
+                            text = job.name,
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            color = if (isSel) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                }
+            }
+        }
 
+        Spacer(Modifier.height(28.dp))
+
+        // Clock in dial button
         val clockInCd = stringResource(R.string.a11y_clock_in)
         Button(
             onClick = onClockIn,
             modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
+                .size(120.dp)
                 .semantics { contentDescription = clockInCd },
             enabled = state.selectedJob != null,
+            shape = CircleShape,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+            ),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
         ) {
             Text(
                 text = stringResource(R.string.action_clock_in),
                 style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
             )
         }
+
+        Spacer(Modifier.height(8.dp))
 
         TextButton(onClick = onOpenJobs) {
-            Text(stringResource(R.string.dashboard_jobs))
-        }
-    }
-}
-
-@Composable
-private fun DashboardGoalPeek(
-    progress: GoalProgress,
-    onClick: () -> Unit,
-) {
-    val goal = progress.goal
-    val color = Color(goal.colorArgb)
-    val percent = (progress.progress * 100f).roundToInt().coerceIn(0, 100)
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        ),
-        shape = RoundedCornerShape(12.dp),
-    ) {
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = stringResource(R.string.dashboard_goal_peek_label),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Text(
-                    text = "$percent%",
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    color = color,
-                )
-            }
             Text(
-                text = goal.name,
-                style = MaterialTheme.typography.titleSmall,
+                text = stringResource(R.string.dashboard_jobs),
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold,
-            )
-            LinearProgressIndicator(
-                progress = { progress.progress.coerceIn(0f, 1f) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(8.dp)
-                    .clip(RoundedCornerShape(4.dp)),
-                color = color,
-                trackColor = color.copy(alpha = 0.15f),
-                strokeCap = StrokeCap.Round,
-            )
-            Text(
-                text = stringResource(
-                    R.string.dashboard_goal_peek_progress,
-                    formatMoney(progress.savedMinor),
-                    formatMoney(goal.targetMinor),
-                ),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
@@ -381,113 +538,130 @@ private fun ActiveSessionPane(
     modifier: Modifier = Modifier,
 ) {
     val active = state.active ?: return
-    val statusColor = if (state.isPaused) {
-        MaterialTheme.colorScheme.tertiary
-    } else {
-        MaterialTheme.colorScheme.primary
-    }
+    val isDark = MaterialTheme.colorScheme.background == Color(0xFF1A1110)
+    val statusColor = if (state.isPaused) Color(0xFFE0C38C) else MaterialTheme.colorScheme.primary
+    val ringBg = if (isDark) Color(0xFF322726) else MaterialTheme.colorScheme.surfaceVariant
+    val activeJob = active.job
+    val startLabel = TimeFormat.formatSince(active.session.startAt)
 
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
-            .padding(24.dp),
+            .padding(horizontal = 24.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        PeriodChips(today = state.todayEarnedMinor, week = state.weekEarnedMinor, streakDays = state.streakCurrentDays)
-
-        Spacer(Modifier.height(8.dp))
-
-        MoneyText(
-            amountMinor = state.earnedMinor,
-            color = statusColor,
-        )
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        Column(
+            modifier = Modifier
+                .padding(top = 16.dp, bottom = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            Box(
-                Modifier
-                    .size(10.dp)
-                    .clip(CircleShape)
-                    .background(statusColor),
+            MoneyText(
+                amountMinor = state.earnedMinor,
+                color = statusColor,
             )
             Text(
                 text = TimeFormat.formatElapsed(state.activeMillis),
-                style = MaterialTheme.typography.headlineMedium.copy(
+                style = MaterialTheme.typography.titleLarge.copy(
                     fontFeatureSettings = "tnum",
                     fontWeight = FontWeight.Medium,
                 ),
-                color = MaterialTheme.colorScheme.onBackground,
+                color = MaterialTheme.colorScheme.onSurface,
             )
+            if (state.isPaused) {
+                Text(
+                    text = stringResource(R.string.notif_status_paused),
+                    color = statusColor,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
         }
+
+        Spacer(Modifier.height(8.dp))
 
         Text(
             text = stringResource(
                 R.string.dashboard_rate_since,
                 formatMoneyRate(active.session.snapshotHourlyRateMinor),
-                TimeFormat.formatSince(active.session.startAt),
+                startLabel,
             ),
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
         Text(
-            text = active.job.name,
+            text = activeJob.name,
             style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface,
         )
 
-        if (state.isPaused) {
-            Text(
-                text = stringResource(R.string.notif_status_paused),
-                color = MaterialTheme.colorScheme.tertiary,
-                style = MaterialTheme.typography.labelLarge,
-            )
-        }
+        Spacer(Modifier.height(16.dp))
 
-        Spacer(Modifier.height(24.dp))
-
-        val clockOutCd = stringResource(R.string.a11y_clock_out)
-        val pauseCd = stringResource(R.string.a11y_pause)
-        val resumeCd = stringResource(R.string.a11y_resume)
-        Button(
-            onClick = onClockOut,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-                .semantics { contentDescription = clockOutCd },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.error,
-                contentColor = MaterialTheme.colorScheme.onError,
-            ),
+        // Controls row with pause/resume round button + large clock out button
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(20.dp),
         ) {
-            Text(
-                text = stringResource(R.string.action_clock_out),
-                style = MaterialTheme.typography.titleMedium,
-            )
-        }
+            val pauseCd = stringResource(R.string.a11y_pause)
+            val resumeCd = stringResource(R.string.a11y_resume)
+            val clockOutCd = stringResource(R.string.a11y_clock_out)
 
-        if (state.isPaused) {
-            FilledTonalButton(
-                onClick = onResume,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp)
-                    .semantics { contentDescription = resumeCd },
-            ) {
-                Text(stringResource(R.string.action_resume))
+            if (state.isPaused) {
+                IconButton(
+                    onClick = onResume,
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(CircleShape)
+                        .background(if (isDark) Color(0xFF1F4230) else MaterialTheme.colorScheme.secondaryContainer)
+                        .semantics { contentDescription = resumeCd },
+                ) {
+                    Icon(
+                        imageVector = androidx.compose.material.icons.Icons.Default.PlayArrow,
+                        contentDescription = null,
+                        tint = if (isDark) Color(0xFFC8F0D9) else MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.size(24.dp),
+                    )
+                }
+            } else {
+                IconButton(
+                    onClick = onPause,
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(CircleShape)
+                        .background(if (isDark) Color(0xFF1F4230) else MaterialTheme.colorScheme.secondaryContainer)
+                        .semantics { contentDescription = pauseCd },
+                ) {
+                    Icon(
+                        imageVector = androidx.compose.material.icons.Icons.Default.Pause,
+                        contentDescription = null,
+                        tint = if (isDark) Color(0xFFC8F0D9) else MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.size(24.dp),
+                    )
+                }
             }
-        } else {
-            FilledTonalButton(
-                onClick = onPause,
+
+            Button(
+                onClick = onClockOut,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp)
-                    .semantics { contentDescription = pauseCd },
+                    .size(88.dp)
+                    .semantics { contentDescription = clockOutCd },
+                shape = CircleShape,
+                contentPadding = PaddingValues(0.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                ),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp),
             ) {
-                Text(stringResource(R.string.action_pause))
+                Text(
+                    text = stringResource(R.string.action_clock_out),
+                    style = MaterialTheme.typography.labelLarge.copy(fontSize = 13.sp),
+                    fontWeight = FontWeight.Bold,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                )
             }
         }
     }

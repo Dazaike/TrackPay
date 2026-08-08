@@ -151,8 +151,8 @@ class DashboardViewModel @Inject constructor(
     }.distinctUntilChanged()
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = DashboardUiState(),
+            started = SharingStarted.Eagerly,
+            initialValue = DashboardUiState(loading = true),
         )
 
     fun selectJob(jobId: String) {

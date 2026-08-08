@@ -151,6 +151,62 @@ fun TrackPayAppShell(
             navController = navController,
             startDestination = startDestination,
             modifier = Modifier.padding(innerPadding),
+            enterTransition = {
+                androidx.compose.animation.fadeIn(animationSpec = androidx.compose.animation.core.tween(500, easing = androidx.compose.animation.core.FastOutSlowInEasing)) +
+                    androidx.compose.animation.scaleIn(
+                        initialScale = 0.82f,
+                        animationSpec = androidx.compose.animation.core.spring(
+                            dampingRatio = androidx.compose.animation.core.Spring.DampingRatioLowBouncy,
+                            stiffness = androidx.compose.animation.core.Spring.StiffnessLow,
+                        ),
+                    ) +
+                    androidx.compose.animation.slideInHorizontally(
+                        animationSpec = androidx.compose.animation.core.spring(
+                            dampingRatio = androidx.compose.animation.core.Spring.DampingRatioLowBouncy,
+                            stiffness = androidx.compose.animation.core.Spring.StiffnessLow,
+                        ),
+                        initialOffsetX = { it },
+                    )
+            },
+            exitTransition = {
+                androidx.compose.animation.fadeOut(animationSpec = androidx.compose.animation.core.tween(400)) +
+                    androidx.compose.animation.scaleOut(
+                        targetScale = 0.88f,
+                        animationSpec = androidx.compose.animation.core.tween(400),
+                    ) +
+                    androidx.compose.animation.slideOutHorizontally(
+                        animationSpec = androidx.compose.animation.core.tween(400, easing = androidx.compose.animation.core.FastOutLinearInEasing),
+                        targetOffsetX = { -it },
+                    )
+            },
+            popEnterTransition = {
+                androidx.compose.animation.fadeIn(animationSpec = androidx.compose.animation.core.tween(500, easing = androidx.compose.animation.core.FastOutSlowInEasing)) +
+                    androidx.compose.animation.scaleIn(
+                        initialScale = 0.82f,
+                        animationSpec = androidx.compose.animation.core.spring(
+                            dampingRatio = androidx.compose.animation.core.Spring.DampingRatioLowBouncy,
+                            stiffness = androidx.compose.animation.core.Spring.StiffnessLow,
+                        ),
+                    ) +
+                    androidx.compose.animation.slideInHorizontally(
+                        animationSpec = androidx.compose.animation.core.spring(
+                            dampingRatio = androidx.compose.animation.core.Spring.DampingRatioLowBouncy,
+                            stiffness = androidx.compose.animation.core.Spring.StiffnessLow,
+                        ),
+                        initialOffsetX = { -it },
+                    )
+            },
+            popExitTransition = {
+                androidx.compose.animation.fadeOut(animationSpec = androidx.compose.animation.core.tween(400)) +
+                    androidx.compose.animation.scaleOut(
+                        targetScale = 0.88f,
+                        animationSpec = androidx.compose.animation.core.tween(400),
+                    ) +
+                    androidx.compose.animation.slideOutHorizontally(
+                        animationSpec = androidx.compose.animation.core.tween(400, easing = androidx.compose.animation.core.FastOutLinearInEasing),
+                        targetOffsetX = { it },
+                    )
+            },
         ) {
             composable(Routes.ONBOARDING) {
                 OnboardingRoute(

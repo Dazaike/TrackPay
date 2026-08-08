@@ -90,12 +90,38 @@ fun HistoryScreen(
     onRangePreset: (HistoryRangePreset) -> Unit,
     onClearFilters: () -> Unit,
 ) {
+    val isDark = MaterialTheme.colorScheme.background == Color(0xFF1A1110)
+    val surfaceBg = if (isDark) Color(0xFF1A1110) else MaterialTheme.colorScheme.background
+
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text(stringResource(R.string.history_title)) })
+            TopAppBar(
+                title = { Text(stringResource(R.string.history_title), fontWeight = FontWeight.Medium) },
+                actions = {
+                    Box(
+                        modifier = Modifier
+                            .padding(end = 12.dp)
+                            .clip(androidx.compose.foundation.shape.RoundedCornerShape(16.dp))
+                            .background(if (isDark) Color(0xFF1F4230) else MaterialTheme.colorScheme.primaryContainer)
+                            .padding(horizontal = 14.dp, vertical = 6.dp),
+                    ) {
+                        Text(
+                            text = formatMoney(state.totals.earnedMinor),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            color = if (isDark) Color(0xFFC8F0D9) else MaterialTheme.colorScheme.onPrimaryContainer,
+                        )
+                    }
+                },
+                colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(containerColor = surfaceBg),
+            )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onCreateSession) {
+            FloatingActionButton(
+                onClick = onCreateSession,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+            ) {
                 Icon(
                     Icons.Default.Add,
                     contentDescription = stringResource(R.string.history_create),
