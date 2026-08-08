@@ -19,8 +19,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -31,6 +34,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -41,7 +47,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.trackpay.app.R
 import com.trackpay.app.domain.model.GoalTemplate
-import com.trackpay.app.ui.util.MoneyFormat
+import com.trackpay.app.ui.util.CurrencyFormat
+import com.trackpay.app.ui.util.currencySymbol
+import com.trackpay.app.ui.util.formatMoney
 
 @Composable
 fun OnboardingRoute(
@@ -56,7 +64,11 @@ fun OnboardingRoute(
         state = state,
         onJobNameChange = viewModel::onJobNameChange,
         onHourlyRateChange = viewModel::onHourlyRateChange,
+        onCurrencySelected = viewModel::onCurrencySelected,
         onSelectTemplate = viewModel::onSelectTemplate,
+        onSelectCustomGoal = viewModel::onSelectCustomGoal,
+        onCustomGoalNameChange = viewModel::onCustomGoalNameChange,
+        onCustomGoalTargetChange = viewModel::onCustomGoalTargetChange,
         onNextWelcome = viewModel::nextFromWelcome,
         onNextJob = viewModel::nextFromJob,
         onNextGoal = viewModel::nextFromGoal,
@@ -72,7 +84,11 @@ fun OnboardingScreen(
     state: OnboardingUiState,
     onJobNameChange: (String) -> Unit,
     onHourlyRateChange: (String) -> Unit,
+    onCurrencySelected: (String) -> Unit,
     onSelectTemplate: (GoalTemplate?) -> Unit,
+    onSelectCustomGoal: () -> Unit,
+    onCustomGoalNameChange: (String) -> Unit,
+    onCustomGoalTargetChange: (String) -> Unit,
     onNextWelcome: () -> Unit,
     onNextJob: () -> Unit,
     onNextGoal: () -> Unit,
@@ -119,16 +135,27 @@ fun OnboardingScreen(
                 OnboardingStep.CreateJob -> CreateJobStep(
                     name = state.jobName,
                     rate = state.hourlyRateText,
+                    currencyCode = state.currencyCode,
+                    currencyCodes = state.currencyCodes,
                     error = state.errorMessage,
                     onNameChange = onJobNameChange,
                     onRateChange = onHourlyRateChange,
+                    onCurrencySelected = onCurrencySelected,
                     onBack = onBack,
                     onNext = onNextJob,
                 )
                 OnboardingStep.OptionalGoal -> OptionalGoalStep(
                     templates = state.templates,
                     selected = state.selectedTemplate,
+                    customSelected = state.customGoalSelected,
+                    customName = state.customGoalName,
+                    customTarget = state.customGoalTargetText,
+                    hasSelection = state.hasGoalSelection,
+                    error = state.errorMessage,
                     onSelect = onSelectTemplate,
+                    onSelectCustom = onSelectCustomGoal,
+                    onCustomNameChange = onCustomGoalNameChange,
+                    onCustomTargetChange = onCustomGoalTargetChange,
                     onBack = onBack,
                     onSkip = onSkipGoal,
                     onNext = onNextGoal,
@@ -171,27 +198,31 @@ private fun WelcomeStep(onNext: () -> Unit) {
         style = MaterialTheme.typography.bodyLarge,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
-    Spacer(Modifier.height(12.dp))
+    Spacer(Modifier.height(8.dp))
     Button(
         onClick = onNext,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(52.dp),
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Text(stringResource(R.string.onboarding_get_started))
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CreateJobStep(
     name: String,
     rate: String,
+    currencyCode: String,
+    currencyCodes: List<String>,
     error: String?,
     onNameChange: (String) -> Unit,
     onRateChange: (String) -> Unit,
+    onCurrencySelected: (String) -> Unit,
     onBack: () -> Unit,
     onNext: () -> Unit,
 ) {
+    var currencyExpanded by remember { mutableStateOf(false) }
+
     Text(
         text = stringResource(R.string.onboarding_job_title),
         style = MaterialTheme.typography.headlineSmall,
@@ -209,13 +240,45 @@ private fun CreateJobStep(
         label = { Text(stringResource(R.string.jobs_name)) },
         singleLine = true,
     )
+    ExposedDropdownMenuBox(
+        expanded = currencyExpanded,
+        onExpandedChange = { currencyExpanded = it },
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        OutlinedTextField(
+            value = CurrencyFormat.displayName(currencyCode),
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(stringResource(R.string.settings_currency)) },
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = currencyExpanded)
+            },
+            modifier = Modifier
+                .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                .fillMaxWidth(),
+        )
+        ExposedDropdownMenu(
+            expanded = currencyExpanded,
+            onDismissRequest = { currencyExpanded = false },
+        ) {
+            currencyCodes.forEach { code ->
+                DropdownMenuItem(
+                    text = { Text(CurrencyFormat.displayName(code)) },
+                    onClick = {
+                        currencyExpanded = false
+                        onCurrencySelected(code)
+                    },
+                )
+            }
+        }
+    }
     OutlinedTextField(
         value = rate,
         onValueChange = onRateChange,
         modifier = Modifier.fillMaxWidth(),
         label = { Text(stringResource(R.string.jobs_hourly_rate)) },
         singleLine = true,
-        prefix = { Text("$") },
+        prefix = { Text(currencySymbol()) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
     )
     if (error != null) {
@@ -242,7 +305,15 @@ private fun CreateJobStep(
 private fun OptionalGoalStep(
     templates: List<GoalTemplate>,
     selected: GoalTemplate?,
+    customSelected: Boolean,
+    customName: String,
+    customTarget: String,
+    hasSelection: Boolean,
+    error: String?,
     onSelect: (GoalTemplate?) -> Unit,
+    onSelectCustom: () -> Unit,
+    onCustomNameChange: (String) -> Unit,
+    onCustomTargetChange: (String) -> Unit,
     onBack: () -> Unit,
     onSkip: () -> Unit,
     onNext: () -> Unit,
@@ -258,7 +329,7 @@ private fun OptionalGoalStep(
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
     templates.forEach { template ->
-        val isSelected = selected?.name == template.name
+        val isSelected = !customSelected && selected?.name == template.name
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -280,13 +351,69 @@ private fun OptionalGoalStep(
                     fontWeight = FontWeight.SemiBold,
                 )
                 Text(
-                    text = MoneyFormat.format(template.defaultTargetMinor),
+                    text = formatMoney(template.defaultTargetMinor),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
     }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onSelectCustom),
+        colors = CardDefaults.cardColors(
+            containerColor = if (customSelected) {
+                MaterialTheme.colorScheme.primaryContainer
+            } else {
+                MaterialTheme.colorScheme.surfaceContainer
+            },
+        ),
+    ) {
+        Column(
+            Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.onboarding_goal_custom),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Text(
+                text = stringResource(R.string.onboarding_goal_custom_body),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            if (customSelected) {
+                OutlinedTextField(
+                    value = customName,
+                    onValueChange = onCustomNameChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.onboarding_goal_custom_name)) },
+                    singleLine = true,
+                )
+                OutlinedTextField(
+                    value = customTarget,
+                    onValueChange = onCustomTargetChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.onboarding_goal_custom_target)) },
+                    singleLine = true,
+                    prefix = { Text(currencySymbol()) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                )
+            }
+        }
+    }
+
+    if (error != null) {
+        Text(
+            text = error,
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodyMedium,
+        )
+    }
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -299,7 +426,7 @@ private fun OptionalGoalStep(
             TextButton(onClick = onSkip) {
                 Text(stringResource(R.string.onboarding_skip))
             }
-            Button(onClick = onNext, enabled = selected != null) {
+            Button(onClick = onNext, enabled = hasSelection) {
                 Text(stringResource(R.string.action_continue))
             }
         }
@@ -329,11 +456,6 @@ private fun PermissionsStep(
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
-    FilterChip(
-        selected = false,
-        onClick = onRequestPermissions,
-        label = { Text(stringResource(R.string.onboarding_allow_permissions)) },
-    )
     if (error != null) {
         Text(
             text = error,
@@ -341,27 +463,43 @@ private fun PermissionsStep(
             style = MaterialTheme.typography.bodyMedium,
         )
     }
-    Row(
+    Button(
+        onClick = {
+            onRequestPermissions()
+            onFinish()
+        },
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        enabled = !saving,
     ) {
-        TextButton(onClick = onBack, enabled = !saving) {
-            Text(stringResource(R.string.action_back))
-        }
-        Button(onClick = onFinish, enabled = !saving) {
-            Text(
-                if (saving) {
-                    stringResource(R.string.onboarding_saving)
-                } else {
-                    stringResource(R.string.onboarding_finish)
-                },
-            )
-        }
+        Text(
+            if (saving) {
+                stringResource(R.string.onboarding_saving)
+            } else {
+                stringResource(R.string.onboarding_allow_permissions)
+            },
+        )
     }
     TextButton(
         onClick = onFinish,
+        modifier = Modifier.fillMaxWidth(),
         enabled = !saving,
     ) {
         Text(stringResource(R.string.onboarding_not_now))
+    }
+    TextButton(onClick = onBack, enabled = !saving) {
+        Text(stringResource(R.string.action_back))
+    }
+    Button(
+        onClick = onFinish,
+        modifier = Modifier.fillMaxWidth(),
+        enabled = !saving,
+    ) {
+        Text(
+            if (saving) {
+                stringResource(R.string.onboarding_saving)
+            } else {
+                stringResource(R.string.onboarding_finish)
+            },
+        )
     }
 }

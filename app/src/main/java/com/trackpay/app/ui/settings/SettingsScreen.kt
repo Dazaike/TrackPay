@@ -15,7 +15,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
@@ -291,35 +290,6 @@ fun SettingsScreen(
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
             SettingsSectionHeader(stringResource(R.string.settings_section_support))
 
-            ListItem(
-                headlineContent = { Text(stringResource(R.string.settings_feedback)) },
-                supportingContent = {
-                    Text(stringResource(R.string.settings_feedback_summary))
-                },
-                leadingContent = {
-                    Icon(Icons.Default.Email, contentDescription = null)
-                },
-                trailingContent = {
-                    Icon(
-                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = null,
-                    )
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        val intent = Intent(Intent.ACTION_SENDTO).apply {
-                            data = Uri.parse(
-                                "mailto:feedback@trackpay.app" +
-                                    "?subject=" + Uri.encode("TrackPay feedback") +
-                                    "&body=" + Uri.encode(
-                                    "Version ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})\n\n",
-                                ),
-                            )
-                        }
-                        runCatching { context.startActivity(intent) }
-                    },
-            )
             ListItem(
                 headlineContent = { Text(stringResource(R.string.settings_privacy)) },
                 leadingContent = {

@@ -55,11 +55,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.trackpay.app.R
 import com.trackpay.app.domain.model.GoalProgress
 import com.trackpay.app.domain.model.GoalTemplate
-import com.trackpay.app.ui.util.MoneyFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.math.roundToInt
+import com.trackpay.app.ui.util.formatMoney
 
 @Composable
 fun GoalsRoute(
@@ -204,7 +204,7 @@ private fun GoalsHeaderCard(
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
             )
             Text(
-                text = MoneyFormat.format(totalSavedMinor),
+                text = formatMoney(totalSavedMinor),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -212,7 +212,7 @@ private fun GoalsHeaderCard(
             Text(
                 text = stringResource(
                     R.string.goals_header_of_target,
-                    MoneyFormat.format(totalTargetMinor),
+                    formatMoney(totalTargetMinor),
                 ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.85f),
@@ -315,8 +315,8 @@ private fun GoalProgressRow(
                 Text(
                     text = stringResource(
                         R.string.goals_saved_of_target,
-                        MoneyFormat.format(progress.savedMinor),
-                        MoneyFormat.format(goal.targetMinor),
+                        formatMoney(progress.savedMinor),
+                        formatMoney(goal.targetMinor),
                     ),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -327,7 +327,7 @@ private fun GoalProgressRow(
                     } else {
                         stringResource(
                             R.string.goals_pace_per_week,
-                            MoneyFormat.format(progress.pacePerWeekMinor),
+                            formatMoney(progress.pacePerWeekMinor),
                         )
                     },
                     style = MaterialTheme.typography.bodySmall,
@@ -413,7 +413,7 @@ private fun TemplateCard(
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = MoneyFormat.format(template.defaultTargetMinor),
+                text = formatMoney(template.defaultTargetMinor),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

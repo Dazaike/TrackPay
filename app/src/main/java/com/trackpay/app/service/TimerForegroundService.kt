@@ -15,9 +15,11 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.trackpay.app.MainActivity
 import com.trackpay.app.R
+import com.trackpay.app.data.local.PreferencesDataSource
 import com.trackpay.app.data.repo.SessionRepository
 import com.trackpay.app.domain.calc.EarningsCalculator
 import com.trackpay.app.domain.model.ActiveSession
+import com.trackpay.app.domain.model.JobDefaults
 import com.trackpay.app.domain.model.SessionSource
 import com.trackpay.app.domain.model.SessionStatus
 import com.trackpay.app.domain.time.Clock
@@ -42,6 +44,7 @@ import javax.inject.Inject
 class TimerForegroundService : Service() {
 
     @Inject lateinit var sessionRepository: SessionRepository
+    @Inject lateinit var preferences: PreferencesDataSource
     @Inject lateinit var clock: Clock
     @Inject lateinit var pauseSession: PauseSessionUseCase
     @Inject lateinit var resumeSession: ResumeSessionUseCase
@@ -52,12 +55,21 @@ class TimerForegroundService : Service() {
     private var observeJob: Job? = null
     private var latestActive: ActiveSession? = null
 
+    @Volatile
+    private var currencyCode: String = JobDefaults.DEFAULT_CURRENCY_CODE
+
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
         super.onCreate()
         ensureChannel()
         observeJob = scope.launch {
+            launch {
+                preferences.currencyCode.collectLatest { code ->
+                    currencyCode = code
+                    latestActive?.let { postNotification(it) }
+                }
+            }
             sessionRepository.observeActiveSession().collectLatest { active ->
                 latestActive = active
                 if (active == null) {
@@ -189,7 +201,7 @@ class TimerForegroundService : Service() {
             nowMillis = now,
         )
         val elapsed = TimeFormat.formatElapsed(earnings.activeMillis)
-        val money = MoneyFormat.format(earnings.earnedMinor)
+        val money = MoneyFormat.format(earnings.earnedMinor, currencyCode = currencyCode)
         val statusLabel = when (active.session.status) {
             SessionStatus.PAUSED -> getString(R.string.notif_status_paused)
             else -> getString(R.string.notif_status_running)
@@ -201,7 +213,12 @@ class TimerForegroundService : Service() {
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText(body)
-            .setSubText(MoneyFormat.formatRate(active.session.snapshotHourlyRateMinor))
+            .setSubText(
+                MoneyFormat.formatRate(
+                    active.session.snapshotHourlyRateMinor,
+                    currencyCode = currencyCode,
+                ),
+            )
             .setContentIntent(contentIntent)
             .setOngoing(true)
             .setOnlyAlertOnce(true)

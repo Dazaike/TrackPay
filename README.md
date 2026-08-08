@@ -17,7 +17,7 @@ Material 3 Android app. Local-first pay timer + savings goals + insights. Inspir
 - Currency preference (common ISO codes)
 - First-launch onboarding (job required; goal + permissions optional)
 - Optional geofence arrive/leave **suggestions** via notification (not payroll truth; works fully without location)
-- Settings: jobs, currency, themes, notifications, location master switch, feedback mailto, privacy, about
+- Settings: jobs, currency, themes, notifications, location master switch, privacy, about
 
 ## What it isn’t
 
@@ -33,7 +33,7 @@ Material 3 Android app. Local-first pay timer + savings goals + insights. Inspir
 
 | | |
 |---|---|
-| Version | `1.0.0` (versionCode `7`) |
+| Version | `1.0.1` (versionCode `8`) |
 | Package | `com.trackpay.app` |
 | Stack | Kotlin · Compose · Material 3 · Room · Hilt · DataStore |
 | Min SDK | 26 (live-status polish on 33+) |
@@ -64,7 +64,7 @@ Or open the repo root in Android Studio (Ladybug+) and run the `app` configurati
 
 1. Launch → onboarding welcome  
 2. Create first job (name + hourly rate)  
-3. Optional goal template  
+3. Optional goal (template or custom)  
 4. Optional notification / location permissions (“Not now” allowed)  
 5. Land on Dashboard idle → Clock in  
 
@@ -78,7 +78,7 @@ Or open the repo root in Android Studio (Ladybug+) and run the `app` configurati
 
 App remains usable with all optional permissions denied.
 
-## Feature list (v1.0.0)
+## Feature list (v1.0.1)
 
 | Area | Highlights |
 |---|---|
@@ -88,7 +88,7 @@ App remains usable with all optional permissions denied.
 | Goals | Targets, deadlines, % allocation, templates, pace |
 | Insights | Challenge, charts, weekday averages, streaks, achievements |
 | Themes | Wallet = lifetime earnings; unlock/apply packs; no IAP |
-| Settings | Currency, themes link, live notif toggle, geo master + disclaimer, feedback, privacy, about |
+| Settings | Currency, themes link, live notif toggle, geo master + disclaimer, privacy, about |
 | Onboarding | 4 steps; job required |
 | Live status | FGS ongoing notification; `$` advances without opening UI |
 | Location | Play Services geofencing when available; graceful no-op otherwise |
@@ -103,7 +103,7 @@ TrackPay/
   EXECUTION.md      build order + contracts + smoke gate
   phases/           subagent work orders (00–06)
   README.md         you are here
-  VERSION           semver pointer (1.0.0)
+  VERSION           semver pointer (1.0.1)
 ```
 
 ## Privacy posture

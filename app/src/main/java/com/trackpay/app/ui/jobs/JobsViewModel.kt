@@ -7,6 +7,7 @@ import com.trackpay.app.domain.model.JobDefaults
 import com.trackpay.app.domain.usecase.ArchiveJobUseCase
 import com.trackpay.app.domain.usecase.GetJobUseCase
 import com.trackpay.app.domain.usecase.ListJobsUseCase
+import com.trackpay.app.domain.usecase.ObserveCurrencyCodeUseCase
 import com.trackpay.app.domain.usecase.UpsertJobUseCase
 import com.trackpay.app.location.GeofenceManager
 import com.trackpay.app.ui.util.MoneyFormat
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -72,6 +74,7 @@ class JobEditorViewModel @Inject constructor(
     private val upsertJob: UpsertJobUseCase,
     private val getJob: GetJobUseCase,
     private val geofenceManager: GeofenceManager,
+    private val observeCurrencyCode: ObserveCurrencyCodeUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(JobEditorUiState())
     val uiState: StateFlow<JobEditorUiState> = _uiState
@@ -148,45 +151,46 @@ class JobEditorViewModel @Inject constructor(
 
     fun save() {
         val s = _uiState.value
-        val hourly = MoneyFormat.parseMajorToMinor(s.hourlyRateText)
-        if (hourly == null || hourly <= 0L) {
-            _uiState.value = s.copy(errorMessage = "Enter a valid hourly rate")
-            return
-        }
-        val otText = s.otRateText.trim()
-        val ot = if (otText.isEmpty()) null else MoneyFormat.parseMajorToMinor(otText)
-        if (otText.isNotEmpty() && (ot == null || ot <= 0L)) {
-            _uiState.value = s.copy(errorMessage = "Enter a valid OT rate or leave blank")
-            return
-        }
-        val thresholdMinutes = if (ot == null) {
-            null
-        } else {
-            val hours = s.otThresholdHoursText.trim().toDoubleOrNull() ?: 8.0
-            (hours * 60.0).toInt().coerceAtLeast(1)
-        }
-
-        val latitude = s.latitudeText.trim().toDoubleOrNull()
-        val longitude = s.longitudeText.trim().toDoubleOrNull()
-        val radius = s.radiusText.trim().toIntOrNull()
-            ?: JobDefaults.DEFAULT_RADIUS_METERS
-
-        if (s.geoEnabled) {
-            if (latitude == null || longitude == null) {
-                _uiState.value = s.copy(errorMessage = "Enter latitude and longitude for location")
-                return
-            }
-            if (latitude !in -90.0..90.0 || longitude !in -180.0..180.0) {
-                _uiState.value = s.copy(errorMessage = "Latitude/longitude out of range")
-                return
-            }
-            if (radius <= 0) {
-                _uiState.value = s.copy(errorMessage = "Radius must be a positive number of meters")
-                return
-            }
-        }
-
         viewModelScope.launch {
+            val currency = observeCurrencyCode().first()
+            val hourly = MoneyFormat.parseMajorToMinor(s.hourlyRateText, currency)
+            if (hourly == null || hourly <= 0L) {
+                _uiState.value = s.copy(errorMessage = "Enter a valid hourly rate")
+                return@launch
+            }
+            val otText = s.otRateText.trim()
+            val ot = if (otText.isEmpty()) null else MoneyFormat.parseMajorToMinor(otText, currency)
+            if (otText.isNotEmpty() && (ot == null || ot <= 0L)) {
+                _uiState.value = s.copy(errorMessage = "Enter a valid OT rate or leave blank")
+                return@launch
+            }
+            val thresholdMinutes = if (ot == null) {
+                null
+            } else {
+                val hours = s.otThresholdHoursText.trim().toDoubleOrNull() ?: 8.0
+                (hours * 60.0).toInt().coerceAtLeast(1)
+            }
+
+            val latitude = s.latitudeText.trim().toDoubleOrNull()
+            val longitude = s.longitudeText.trim().toDoubleOrNull()
+            val radius = s.radiusText.trim().toIntOrNull()
+                ?: JobDefaults.DEFAULT_RADIUS_METERS
+
+            if (s.geoEnabled) {
+                if (latitude == null || longitude == null) {
+                    _uiState.value = s.copy(errorMessage = "Enter latitude and longitude for location")
+                    return@launch
+                }
+                if (latitude !in -90.0..90.0 || longitude !in -180.0..180.0) {
+                    _uiState.value = s.copy(errorMessage = "Latitude/longitude out of range")
+                    return@launch
+                }
+                if (radius <= 0) {
+                    _uiState.value = s.copy(errorMessage = "Radius must be a positive number of meters")
+                    return@launch
+                }
+            }
+
             runCatching {
                 upsertJob(
                     id = s.jobId,

@@ -61,12 +61,12 @@ import com.trackpay.app.domain.model.StreakState
 import com.trackpay.app.domain.model.WeekdayAverage
 import com.trackpay.app.domain.model.WeeklyChallenge
 import com.trackpay.app.ui.components.MoneyText
-import com.trackpay.app.ui.util.MoneyFormat
 import java.time.DayOfWeek
 import java.time.format.TextStyle
 import java.util.Locale
 import kotlin.math.max
 import kotlin.math.roundToInt
+import com.trackpay.app.ui.util.formatMoney
 
 @Composable
 fun InsightsRoute(
@@ -234,8 +234,8 @@ private fun WeeklyChallengeCard(challenge: WeeklyChallenge) {
             Text(
                 text = stringResource(
                     R.string.insights_challenge_progress,
-                    MoneyFormat.format(challenge.earnedMinor),
-                    MoneyFormat.format(challenge.targetMinor),
+                    formatMoney(challenge.earnedMinor),
+                    formatMoney(challenge.targetMinor),
                 ),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,

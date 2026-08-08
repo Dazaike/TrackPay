@@ -55,7 +55,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.trackpay.app.R
 import com.trackpay.app.domain.model.Job
 import com.trackpay.app.domain.model.JobDefaults
-import com.trackpay.app.ui.util.MoneyFormat
+import com.trackpay.app.ui.util.formatMoney
+import com.trackpay.app.ui.util.formatMoneyRate
+import com.trackpay.app.ui.util.currencySymbol
 
 @Composable
 fun JobsListRoute(
@@ -165,13 +167,13 @@ private fun JobRow(
             Column(modifier = Modifier.weight(1f)) {
                 Text(job.name, style = MaterialTheme.typography.titleMedium)
                 Text(
-                    MoneyFormat.formatRate(job.hourlyRateMinor),
+                    formatMoneyRate(job.hourlyRateMinor),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 if (job.otRateMinor != null) {
                     Text(
-                        "OT ${MoneyFormat.formatRate(job.otRateMinor)} after ${job.otThresholdMinutes ?: 480}m",
+                        "OT ${formatMoneyRate(job.otRateMinor)} after ${job.otThresholdMinutes ?: 480}m",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -278,7 +280,7 @@ fun JobEditorScreen(
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text(stringResource(R.string.jobs_hourly_rate)) },
                 singleLine = true,
-                prefix = { Text("$") },
+                prefix = { Text(currencySymbol()) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             )
             OutlinedTextField(
@@ -287,7 +289,7 @@ fun JobEditorScreen(
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text(stringResource(R.string.jobs_ot_rate)) },
                 singleLine = true,
-                prefix = { Text("$") },
+                prefix = { Text(currencySymbol()) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             )
             OutlinedTextField(

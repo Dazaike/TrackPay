@@ -76,8 +76,6 @@
     <string name="settings_geo_disclaimer">Geofence is a best-effort reminder, not payroll truth. The app works fully with location off. Enable per job under Manage jobs.</string>
     <string name="settings_geo_per_job">Per-job work locations</string>
     <string name="settings_geo_per_job_summary">Set lat/lng/radius on each job</string>
-    <string name="settings_feedback">Send feedback</string>
-    <string name="settings_feedback_summary">mailto: feedback@trackpay.app</string>
     <string name="settings_privacy">Privacy</string>
     <string name="settings_about">About</string>
     <string name="settings_about_summary">Version %1$s</string>
@@ -99,7 +97,11 @@
     <string name="onboarding_job_title">Create your first job</string>
     <string name="onboarding_job_body">Name it and set the hourly rate. You can add more jobs later in Settings.</string>
     <string name="onboarding_goal_title">Optional first goal</string>
-    <string name="onboarding_goal_body">Pick a template if you want a savings target. Skip if you just want the timer.</string>
+    <string name="onboarding_goal_body">Pick a template or type your own. Skip if you just want the timer.</string>
+    <string name="onboarding_goal_custom">Custom goal</string>
+    <string name="onboarding_goal_custom_body">Name it and set a target amount in your currency.</string>
+    <string name="onboarding_goal_custom_name">Goal name</string>
+    <string name="onboarding_goal_custom_target">Target amount</string>
     <string name="onboarding_skip">Skip</string>
     <string name="onboarding_permissions_title">Permissions</string>
     <string name="onboarding_permissions_body">Notifications keep the live session status visible. Location powers optional arrival/leave suggestions. Both are optional — Not now is fine.</string>

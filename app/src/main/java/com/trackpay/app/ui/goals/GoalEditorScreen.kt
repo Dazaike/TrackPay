@@ -48,6 +48,7 @@ import com.trackpay.app.R
 import com.trackpay.app.domain.model.GoalDefaults
 import com.trackpay.app.domain.model.GoalTemplate
 import kotlin.math.roundToInt
+import com.trackpay.app.ui.util.currencySymbol
 
 @Composable
 fun GoalEditorRoute(
@@ -143,7 +144,7 @@ fun GoalEditorScreen(
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text(stringResource(R.string.goals_target)) },
                 singleLine = true,
-                prefix = { Text("$") },
+                prefix = { Text(currencySymbol()) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             )
             OutlinedTextField(

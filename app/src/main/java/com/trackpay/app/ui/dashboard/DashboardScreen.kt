@@ -66,9 +66,10 @@ import com.trackpay.app.R
 import com.trackpay.app.domain.model.GoalProgress
 import com.trackpay.app.domain.model.Job
 import com.trackpay.app.ui.components.MoneyText
-import com.trackpay.app.ui.util.MoneyFormat
 import com.trackpay.app.ui.util.TimeFormat
 import kotlin.math.roundToInt
+import com.trackpay.app.ui.util.formatMoney
+import com.trackpay.app.ui.util.formatMoneyRate
 
 @Composable
 fun DashboardRoute(
@@ -273,7 +274,7 @@ private fun IdlePane(
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
-                    text = MoneyFormat.formatRate(job.hourlyRateMinor),
+                    text = formatMoneyRate(job.hourlyRateMinor),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -361,8 +362,8 @@ private fun DashboardGoalPeek(
             Text(
                 text = stringResource(
                     R.string.dashboard_goal_peek_progress,
-                    MoneyFormat.format(progress.savedMinor),
-                    MoneyFormat.format(goal.targetMinor),
+                    formatMoney(progress.savedMinor),
+                    formatMoney(goal.targetMinor),
                 ),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -425,7 +426,7 @@ private fun ActiveSessionPane(
         Text(
             text = stringResource(
                 R.string.dashboard_rate_since,
-                MoneyFormat.formatRate(active.session.snapshotHourlyRateMinor),
+                formatMoneyRate(active.session.snapshotHourlyRateMinor),
                 TimeFormat.formatSince(active.session.startAt),
             ),
             style = MaterialTheme.typography.bodyLarge,
@@ -501,13 +502,13 @@ private fun PeriodChips(today: Long, week: Long, streakDays: Int) {
         AssistChip(
             onClick = {},
             label = {
-                Text("${stringResource(R.string.dashboard_today)} ${MoneyFormat.format(today)}")
+                Text("${stringResource(R.string.dashboard_today)} ${formatMoney(today)}")
             },
         )
         AssistChip(
             onClick = {},
             label = {
-                Text("${stringResource(R.string.dashboard_week)} ${MoneyFormat.format(week)}")
+                Text("${stringResource(R.string.dashboard_week)} ${formatMoney(week)}")
             },
         )
         if (streakDays >= 1) {
@@ -546,7 +547,7 @@ private fun JobSelector(
                             Column {
                                 Text(job.name)
                                 Text(
-                                    MoneyFormat.formatRate(job.hourlyRateMinor),
+                                    formatMoneyRate(job.hourlyRateMinor),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )

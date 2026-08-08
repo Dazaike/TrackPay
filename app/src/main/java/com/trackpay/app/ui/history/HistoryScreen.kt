@@ -58,8 +58,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.trackpay.app.R
 import com.trackpay.app.domain.model.SessionListItem
 import com.trackpay.app.ui.components.MoneyText
-import com.trackpay.app.ui.util.MoneyFormat
 import com.trackpay.app.ui.util.TimeFormat
+import com.trackpay.app.ui.util.formatMoney
 
 @Composable
 fun HistoryRoute(
@@ -399,7 +399,7 @@ private fun SessionRow(
                 )
             }
             Text(
-                text = MoneyFormat.format(item.earnedMinor),
+                text = formatMoney(item.earnedMinor),
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                 color = MaterialTheme.colorScheme.primary,
             )

@@ -50,8 +50,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.trackpay.app.R
 import com.trackpay.app.domain.model.ThemePackUi
 import com.trackpay.app.ui.theme.ThemePacks
-import com.trackpay.app.ui.util.MoneyFormat
 import kotlinx.coroutines.flow.collectLatest
+import com.trackpay.app.ui.util.LocalCurrencyCode
+import com.trackpay.app.ui.util.formatMoney
 
 @Composable
 fun ThemesRoute(
@@ -62,13 +63,14 @@ fun ThemesRoute(
     val snackbarHostState = remember { SnackbarHostState() }
     val lockedNeedMoreTemplate = stringResource(R.string.themes_locked_need_more)
     val applyFailedMessage = stringResource(R.string.themes_apply_failed)
+    val currencyCode = LocalCurrencyCode.current
 
-    LaunchedEffect(viewModel) {
+    LaunchedEffect(viewModel, currencyCode) {
         viewModel.events.collectLatest { event ->
             when (event) {
                 is ThemesEvent.LockedNeedMore -> {
                     val msg = lockedNeedMoreTemplate.format(
-                        MoneyFormat.format(event.remainingMinor),
+                        formatMoney(event.remainingMinor, currencyCode),
                         event.themeName,
                     )
                     snackbarHostState.showSnackbar(msg)
@@ -164,7 +166,7 @@ private fun ThemesWalletCard(walletMinor: Long) {
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                text = MoneyFormat.format(walletMinor),
+                text = formatMoney(walletMinor),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -262,6 +264,6 @@ private fun themeSubtitle(theme: ThemePackUi): String = when {
     theme.unlockMinor <= 0L -> stringResource(R.string.themes_free)
     else -> stringResource(
         R.string.themes_unlock_at,
-        MoneyFormat.format(theme.unlockMinor),
+        formatMoney(theme.unlockMinor),
     )
 }

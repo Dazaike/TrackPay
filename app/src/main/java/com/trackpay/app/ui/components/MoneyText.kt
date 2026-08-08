@@ -13,6 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.trackpay.app.R
+import com.trackpay.app.ui.util.LocalCurrencyCode
 import com.trackpay.app.ui.util.MoneyFormat
 
 @Composable
@@ -26,7 +27,7 @@ fun MoneyText(
     ),
     color: Color = MaterialTheme.colorScheme.primary,
     textAlign: TextAlign? = null,
-    currencyCode: String = "USD",
+    currencyCode: String = LocalCurrencyCode.current,
 ) {
     val formatted = MoneyFormat.format(amountMinor, currencyCode = currencyCode)
     val a11y = stringResource(R.string.a11y_money_amount, formatted)

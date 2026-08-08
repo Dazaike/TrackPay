@@ -55,8 +55,9 @@ import com.trackpay.app.domain.model.SessionDetail
 import com.trackpay.app.domain.model.SessionStatus
 import com.trackpay.app.ui.components.MoneyText
 import com.trackpay.app.ui.util.DateTimeFormat
-import com.trackpay.app.ui.util.MoneyFormat
 import java.util.Locale
+import com.trackpay.app.ui.util.formatMoney
+import com.trackpay.app.ui.util.formatMoneyRate
 
 @Composable
 fun SessionDetailRoute(
@@ -288,17 +289,17 @@ private fun SessionDetailContent(
                 )
                 DetailRow(
                     label = stringResource(R.string.session_rate),
-                    value = MoneyFormat.formatRate(session.snapshotHourlyRateMinor),
+                    value = formatMoneyRate(session.snapshotHourlyRateMinor),
                 )
                 if (session.snapshotOtRateMinor != null) {
                     DetailRow(
                         label = stringResource(R.string.session_ot_rate),
-                        value = MoneyFormat.formatRate(session.snapshotOtRateMinor),
+                        value = formatMoneyRate(session.snapshotOtRateMinor),
                     )
                 }
                 DetailRow(
                     label = stringResource(R.string.session_earned),
-                    value = MoneyFormat.format(detail.breakdown.earnedMinor),
+                    value = formatMoney(detail.breakdown.earnedMinor),
                 )
             }
         }

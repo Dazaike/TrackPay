@@ -7,6 +7,7 @@ import com.trackpay.app.domain.model.GoalStatus
 import com.trackpay.app.domain.model.GoalTemplate
 import com.trackpay.app.domain.usecase.ArchiveGoalUseCase
 import com.trackpay.app.domain.usecase.GetGoalUseCase
+import com.trackpay.app.domain.usecase.ObserveCurrencyCodeUseCase
 import com.trackpay.app.domain.usecase.ObserveGoalProgressUseCase
 import com.trackpay.app.domain.usecase.UpsertGoalUseCase
 import com.trackpay.app.ui.util.MoneyFormat
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -62,6 +64,7 @@ class GoalEditorViewModel @Inject constructor(
     private val upsertGoal: UpsertGoalUseCase,
     private val getGoal: GetGoalUseCase,
     private val archiveGoal: ArchiveGoalUseCase,
+    private val observeCurrencyCode: ObserveCurrencyCodeUseCase,
     observeGoalProgress: ObserveGoalProgressUseCase,
 ) : ViewModel() {
 
@@ -176,8 +179,9 @@ class GoalEditorViewModel @Inject constructor(
             form.value = s.copy(errorMessage = "Enter a goal name")
             return
         }
-        val target = MoneyFormat.parseMajorToMinor(s.targetText)
-        if (target == null || target <= 0L) {
+        val targetText = s.targetText
+        // parsed inside coroutine with active currency
+        if (targetText.isBlank()) {
             form.value = s.copy(errorMessage = "Enter a valid target amount")
             return
         }
@@ -198,6 +202,12 @@ class GoalEditorViewModel @Inject constructor(
             return
         }
         viewModelScope.launch {
+            val currency = observeCurrencyCode().first()
+            val target = MoneyFormat.parseMajorToMinor(targetText, currency)
+            if (target == null || target <= 0L) {
+                form.value = s.copy(errorMessage = "Enter a valid target amount")
+                return@launch
+            }
             runCatching {
                 upsertGoal(
                     id = s.goalId,
